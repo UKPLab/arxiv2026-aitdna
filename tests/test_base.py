@@ -1,6 +1,6 @@
 # Tests are defined here
-from arxiv2026_aitdna import BaseClass
-from arxiv2026_aitdna.subpackage import SubPackageClass
+from ukp_project_template import BaseClass
+from ukp_project_template.subpackage import SubPackageClass
 
 def test_template():
     assert True

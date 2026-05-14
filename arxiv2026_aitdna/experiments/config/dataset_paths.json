@@ -1,0 +1,8 @@
+{
+    "AITDNA": "data/aitdna/formatted",
+    "COAUTHOR": "data/other_datasets/processed_new_format/coauthor-v1.0",
+    "MIXSET": "data/other_datasets/processed_new_format/mixset",
+    "DETECTRL": "data/other_datasets/processed_new_format/detectRL",
+    "BOUNDARY_DETECTION": "data/other_datasets/processed_new_format/boundary_detection",
+    "SENDETEX": "data/other_datasets/processed_new_format/senDetEx"
+}

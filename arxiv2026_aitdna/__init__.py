@@ -1,8 +1,11 @@
-from .base import BaseClass
-
-
+"""
+Init for whole package.
+"""
+__version__ = "0.0.0"
 
 __all__ = [
-    "subpackage",
-    "BaseClass"
-    ]
+    "datasets",
+    "detectors",
+    "notions",
+    "experiments"
+]

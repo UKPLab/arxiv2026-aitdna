@@ -1,4 +1,4 @@
-"""Entry point for arxiv2026_aitdna."""
+"""Entry point."""
 
 from .cli import main  # pragma: no cover
 

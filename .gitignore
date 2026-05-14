@@ -137,3 +137,9 @@ dmypy.json
 # Project files
 sketch*
 arxiv2026_aitdna/sketch*
+
+data/*
+logs/*
+venv/
+.env
+models/*
