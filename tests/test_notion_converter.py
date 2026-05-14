@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 import json
 import dotenv
-from txaitd.notions.NotionConverter import Converter
-from txaitd.notions.data_loading import DatasetName, AitdDataset, Notion, Population
+from aitdna.notions.NotionConverter import Converter
+from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion, Population
 from torch.utils.data import DataLoader
 
 # todo directories

@@ -3,8 +3,8 @@ import json
 from pathlib import Path
 from collections import defaultdict
 
-from txaitd.notions.AITDNotions import AITDNotions
-from txaitd.notions.data_loading import Population, AitdDataset, DatasetName, Notion
+from aitdna.notions.AITDNotions import AITDNotions
+from aitdna.notions.data_loading import Population, AitdDataset, DatasetName, Notion
 from torch.utils.data import DataLoader
 
 def test_population_based():
@@ -23,7 +23,7 @@ def filter_by_username(meta: dict[str, str], user: str):
     return meta["author"] == user
 
 def test_membership_based():
-    PROJECT_ROOT = "/home/dycke/Projects/TXAITD/txaitd-paper1"
+    PROJECT_ROOT = "/home/dycke/Projects/TXAITD/aitdna-paper1"
 
     popdata = AitdDataset(dataset=DatasetName.AITDNA,
                           root_dir=PROJECT_ROOT + "/data/aitdna/formatted",

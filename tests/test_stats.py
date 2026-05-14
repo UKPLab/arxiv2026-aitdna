@@ -1,6 +1,6 @@
 import os
-from txaitd.analysis.StatsComputer import StatsComputer
-from txaitd.notions.data_loading import DatasetName
+from aitdna.analysis.StatsComputer import StatsComputer
+from aitdna.notions.data_loading import DatasetName
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy

@@ -2,13 +2,13 @@
   <img src='logo.png' width='200'>
 </p>
 
-# Benchmarking Notions of MGTD
+# ’Your AI Text is not Mine’: Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions
 [![Arxiv](https://img.shields.io/badge/Arxiv-YYMM.NNNNN-red?style=flat-square&logo=arxiv&logoColor=white)](https://put-here-your-paper.com)
 [![License](https://img.shields.io/github/license/UKPLab/ukp-project-template)](https://opensource.org/licenses/Apache-2.0)
 [![Python Versions](https://img.shields.io/badge/Python-3.11-blue.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![CI](https://github.com/UKPLab/ukp-project-template/actions/workflows/main.yml/badge.svg)](https://github.com/UKPLab/ukp-project-template/actions/workflows/main.yml)
 
-<Introtext TBA>
+This repository implements the code for our paper on the notions of AI-generated text and their evaluation.
 
 > **Abstract:** Although it is generally agreed that AI-generated text poses a broad societal risk, there is no common understanding in the AI-generated text detection literature on what constitutes harmful use.  Rather, existing datasets and approaches often define their own criteria and make their own assumptions, sometimes implicitly, and often only loosely related to real-world needs and applications. To address this gap, we here systematically define various notions of AI-generated text and their characteristics. To study these, we collect AITDNA - a new benchmark of human-machine co-constructed texts that is annotated with detailed genesis information, such as the entire edit and AI-interaction history. We benchmark various machine-generated text detectors and find that they often only perform well for specific notions but not as broad detectors. We release code and data publicly.
 > 
@@ -26,7 +26,7 @@ Don't hesitate to send us an e-mail or report an issue, if something is broken (
 2. Download spacy tokenizer `python -m spacy download en_core_web_lg`
 3. Install flit `pip install flit`
 5. Run `flit install`
-6. Run the initialization script `python -m txaitd install`
+6. Run the initialization script `python -m aitdna install`
 7. Get started (see below)
 
 ## Data Processing
@@ -51,14 +51,14 @@ user.csv
 Data preprocessing. Processes CARE data between cutoff dates. Src_root should contain logs from CARE. One run processes one study session. Results in raw edits saved in JSON format, in form study/user/task/edits.json
 
 ```console
-python txaitd/datasets/aitdna/preprocessing/process_csv.py --src_root data/raw_data/2026-02-20-snapshot --dst_root "data/datasets/original/2020-01-22" --consent_form_path data/raw_data/surveys_data/processed/consent.csv --earliest_cutoff_date "2026-01-18 09:00:00.00+00" --latest_cutoff_date "2026-02-20 00:00:00.00+00"
+python aitdna/datasets/aitdna/preprocessing/process_csv.py --src_root data/raw_data/2026-02-20-snapshot --dst_root "data/datasets/original/2020-01-22" --consent_form_path data/raw_data/surveys_data/processed/consent.csv --earliest_cutoff_date "2026-01-18 09:00:00.00+00" --latest_cutoff_date "2026-02-20 00:00:00.00+00"
 ```
 
 ### Data Formatting
 Data formatting. Formats edits themselves (better naming of operations, users, time starting from 0s), filters and flags bad data, computes notions and statistics. If --process_all flag passed, processes all data for all studies. Otherwise, processes only data for one user study. Format of root and dst is then: --src_root data/datasets/original/YOUR STUDY --dst_root data/datasets/formatted/YOUR STUDY, and do not pass the process_all flag.
 
 ```console
-python -m txaitd format_dataset --src_root data/test/original --dst_root data/test/formatted --ns_segments 2 5 10 --survey_paths data/raw_data/surveys_data/processed/background.csv data/raw_data/surveys_data/processed/ux_survey.csv --user_task_assignment data/raw_data/user_task_assignment/user_task_assignment.json --process_all
+python -m aitdna format_dataset --src_root data/test/original --dst_root data/test/formatted --ns_segments 2 5 10 --survey_paths data/raw_data/surveys_data/processed/background.csv data/raw_data/surveys_data/processed/ux_survey.csv --user_task_assignment data/raw_data/user_task_assignment/user_task_assignment.json --process_all
 
 ```
 
@@ -74,7 +74,7 @@ it's the one with all model folders. For the others, it's the one with all data 
 ```python
 from torch.utils.data import DataLoader
 
-from txaitd.notions.data_loading import AitdDataset, DatasetName, Notion
+from aitdna.notions.data_loading import AitdDataset, DatasetName, Notion
 
 root_dir = "dataset-root-directory"
 dataset = AitdDataset(dataset=DatasetName.COAUTHOR, root_dir=root_dir,
@@ -90,7 +90,7 @@ for batch in loader:
 ### Statistics generation
 To generate all statistics, use
 ```console
-python -m txaitd compute_dataset_stats -r data/aitdna_anonymized/formatted -n AITDNA -d all_stats.json
+python -m aitdna compute_dataset_stats -r data/aitdna_anonymized/formatted -n AITDNA -d all_stats.json
 ```
 Following statistics will be generated:
 1. Statistics per sentence (computed for user, bot, and mixed):

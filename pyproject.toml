@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 extra-index-url = "https://download.pytorch.org/whl/cu130"
 
 [project]
-name = "txaitd"
+name = "aitdna"
 authors = [
     {name = "Marina Sakharova", email = "sacharovamarina@gmail.com"},
     {name="Nils Dycke", email="ndycke0@gmail.com"},

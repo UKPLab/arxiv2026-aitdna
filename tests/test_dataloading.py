@@ -3,7 +3,7 @@ from pathlib import Path
 
 import dotenv
 from torch.utils.data import DataLoader
-from txaitd.notions.data_loading import DatasetName, AitdDataset, Notion, Population
+from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion, Population
 
 # PARAMS
 dotenv.load_dotenv(".env")
