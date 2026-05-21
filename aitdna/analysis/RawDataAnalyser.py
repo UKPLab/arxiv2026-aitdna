@@ -916,7 +916,7 @@ def test_detection_ds():
     
     return metrics
 
-def create_thresholds_table(method, root):
+def create_thresholds_table(method, root, metric):
     datasets = ["AITDNA", "DETECTRL", "SENDETEX", "MIXSET", "COAUTHOR", "DETECTION"]
     results = {}
     for file in os.listdir(root):

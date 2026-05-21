@@ -12,7 +12,7 @@ This repository implements the code for our paper on the notions of AI-generated
 
 > **Abstract:** Although it is generally agreed that AI-generated text poses a broad societal risk, there is no common understanding in the AI-generated text detection literature on what constitutes harmful use.  Rather, existing datasets and approaches often define their own criteria and make their own assumptions, sometimes implicitly, and often only loosely related to real-world needs and applications. To address this gap, we here systematically define various notions of AI-generated text and their characteristics. To study these, we collect AITDNA - a new benchmark of human-machine co-constructed texts that is annotated with detailed genesis information, such as the entire edit and AI-interaction history. We benchmark various machine-generated text detectors and find that they often only perform well for specific notions but not as broad detectors. We release code and data publicly.
 > 
-Contact person: [Marina Sakharova](mailto:marina.sakharova@stud.tu-darmstadt.de)
+Contact person: [Marina Sakharova](mailto:marina.sakharova@stud.tu-darmstadt.de), [Nico Daheim](mailto:nico.daheim@tu-darmstadt.de)
 
 [UKP Lab](https://www.ukp.tu-darmstadt.de/) | [TU Darmstadt](https://www.tu-darmstadt.de/
 )
@@ -29,45 +29,51 @@ Don't hesitate to send us an e-mail or report an issue, if something is broken (
 6. Run the initialization script `python -m aitdna install`
 7. Get started (see below)
 
-## Data Processing
-
-### Preparation
-Make sure to prepare the following data:
-- Logs from CARE. These should include: 
+## Use Dataset
+To load the dataset from huggingface, run: 
+```python
+# available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"
+ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
+loader = DataLoader(ds, batch_size=1, collate_fn=lambda dp: dp)
+for batch in loader:
+    for text in batch:
+        data = text["data"]
+        metadata = text["metadata"]
+        for snippet in data:
+            print(snippet)
 ```
-document_edit.csv
-document.csv
-human_ai_perception.csv
-nlp_editor_request.csv
-nlp_editor_response.csv
-user.csv
+
+If you wish to evaluate another dataset with our
+
+```python
+from torch.utils.data import DataLoader
+
+from aitdna.notions.data_loading import AitdDataset, DatasetName, Notion
+
+root_dir = "dataset-root-directory"
+dataset = AitdDataset(dataset=DatasetName.COAUTHOR, root_dir=root_dir,
+                  notion=Notion.DOCUMENT_LEVEL)
+loader = DataLoader(dataset, batch_size=2, collate_fn=lambda data_point: data_point)
+for batch in loader:
+    for data_point in batch:
+        for snippet in data_point:
+          # do things
+          ...
 ```
-- Consent form data in `.csv` format
-- Surveys data (background and UX survey) in `.csv` format
-- User-task-model assignment in `JSON` format
 
-### CSV Data Processing
-
-Data preprocessing. Processes CARE data between cutoff dates. Src_root should contain logs from CARE. One run processes one study session. Results in raw edits saved in JSON format, in form study/user/task/edits.json
+## Evaluate Models
+To evaluate predictors, adapt search config file to your needs. Specify what predictor and dataset you want to evaluate,
+the path to the dataset, and hyperparameter values.
 
 ```console
-python aitdna/datasets/aitdna/preprocessing/process_csv.py --src_root data/raw_data/2026-02-20-snapshot --dst_root "data/datasets/original/2020-01-22" --consent_form_path data/raw_data/surveys_data/processed/consent.csv --earliest_cutoff_date "2026-01-18 09:00:00.00+00" --latest_cutoff_date "2026-02-20 00:00:00.00+00"
-```
-
-### Data Formatting
-Data formatting. Formats edits themselves (better naming of operations, users, time starting from 0s), filters and flags bad data, computes notions and statistics. If --process_all flag passed, processes all data for all studies. Otherwise, processes only data for one user study. Format of root and dst is then: --src_root data/datasets/original/YOUR STUDY --dst_root data/datasets/formatted/YOUR STUDY, and do not pass the process_all flag.
-
-```console
-python -m aitdna format_dataset --src_root data/test/original --dst_root data/test/formatted --ns_segments 2 5 10 --survey_paths data/raw_data/surveys_data/processed/background.csv data/raw_data/surveys_data/processed/ux_survey.csv --user_task_assignment data/raw_data/user_task_assignment/user_task_assignment.json --process_all
+python -m txaitd run_predictors --path_to_config_json aitdna/experiments/config/search_config.json --cache_dir your-cache-dir
 
 ```
-
 ### Data Loading
 The code below shows a simple example of data loading. Each data point corresponds to one text in one notion, represented as a list of dicts.
 
 You need to specify:
-- Path to dataset root. For AITDNA, it's the folder with all study folders. For AITDNA-SYNTHETIC,
-it's the one with all model folders. For the others, it's the one with all data points.
+- Path to dataset root. For AITDNA, it's the folder with all study folders. For the other datasets, it's the one with all data points.
 - What dataset you want to load (see `scripts/data_scripts/data_loading/Datasets.py` for all options).
 - The notion that you want to use (see `scripts/data_scripts/data_loading/Notion.py` for all options)
 
@@ -114,6 +120,40 @@ Following statistics will be generated:
 - Avg #tokens per span
 - Avg #boundaries sentence-level (how often does the authorship change in the sorted list of sentences)
 - Avg #boundaries span-level
+
+
+## Data Processing
+Steps for the dataset creation and processing.
+### Preparation
+Make sure to prepare the following data:
+- Logs from CARE. These should include: 
+```
+document_edit.csv
+document.csv
+human_ai_perception.csv
+nlp_editor_request.csv
+nlp_editor_response.csv
+user.csv
+```
+- Consent form data in `.csv` format
+- Surveys data (background and UX survey) in `.csv` format
+- User-task-model assignment in `JSON` format
+
+### CSV Data Processing
+
+Data preprocessing. Processes CARE data between cutoff dates. Src_root should contain logs from CARE. One run processes one study session. Results in raw edits saved in JSON format, in form study/user/task/edits.json
+
+```console
+python aitdna/datasets/aitdna/preprocessing/process_csv.py --src_root data/raw_data/2026-02-20-snapshot --dst_root "data/datasets/original/2020-01-22" --consent_form_path data/raw_data/surveys_data/processed/consent.csv --earliest_cutoff_date "2026-01-18 09:00:00.00+00" --latest_cutoff_date "2026-02-20 00:00:00.00+00"
+```
+
+### Data Formatting
+Data formatting. Formats edits themselves (better naming of operations, users, time starting from 0s), filters and flags bad data, computes notions and statistics. If --process_all flag passed, processes all data for all studies. Otherwise, processes only data for one user study. Format of root and dst is then: --src_root data/datasets/original/YOUR STUDY --dst_root data/datasets/formatted/YOUR STUDY, and do not pass the process_all flag.
+
+```console
+python -m aitdna format_dataset --src_root data/aitdna/original --dst_root data/aitdna/formatted --ns_segments 2 5 10 --survey_paths data/raw_data/surveys_data/processed/background.csv data/raw_data/surveys_data/processed/ux_survey.csv --user_task_assignment data/raw_data/user_task_assignment/user_task_assignment.json --process_all
+
+```
 
 ## Cite
 
