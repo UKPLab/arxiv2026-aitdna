@@ -4,8 +4,10 @@ from pathlib import Path
 from collections import defaultdict
 
 from aitdna.notions.AITDNotions import AITDNotions
+import inspect
 from aitdna.notions.data_loading import Population, AitdDataset, DatasetName, Notion
 from torch.utils.data import DataLoader
+print(inspect.getfile(AitdDataset))
 
 def test_population_based():
     notions = AITDNotions()
@@ -179,4 +181,43 @@ def test_intentbased():
                 print(sentence)
             break
 
-test_different_ns_authorship_based()
+def test_document_level():
+    dataset = AitdDataset(dataset=DatasetName.AITDNA,
+                                         notion=Notion.DOCUMENT_LEVEL,
+                                         document_level_threshold=0.1,
+                                         with_meta=False)
+    ai_texts = 0
+    loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
+    for batch in loader:
+        for text in batch:
+            for snippet in text:
+                if snippet["author"] == "Bot":
+                    ai_texts += 1
+    print(ai_texts / len(dataset))
+        
+
+def test_sentence_level():
+    dataset = AitdDataset(dataset=DatasetName.AITDNA,
+                                         notion=Notion.SENTENCE_LEVEL,
+                                         sentence_level_threshold=0.6,
+                                         with_meta=False)
+
+    loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
+    for batch in loader:
+        for text in batch:
+            for sentence in text:
+                print(sentence)
+            exit(0)
+
+def test_boundary_level():
+    dataset = AitdDataset(dataset=DatasetName.AITDNA,
+                                         notion=Notion.BOUNDARY_LEVEL,
+                                         with_meta=False)
+
+    loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
+    for batch in loader:
+        for text in batch:
+            for sentence in text:
+                print(sentence)
+            exit(0)
+

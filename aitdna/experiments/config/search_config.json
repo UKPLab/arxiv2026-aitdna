@@ -9,7 +9,7 @@
     "prompt_prefix": "",
     "tokenizer_name": "models/gemma/",
     "reference_model_name_or_path": "models/gemma/",
-    "dataset_threshold": 0.25,
+    "dataset_threshold": 0.5,
     "method": "likelihood",
     "metric_output_dir": "data/predictor_test/local",
     "prediction_output_file": "data/predictor_test/local/search_output.json",

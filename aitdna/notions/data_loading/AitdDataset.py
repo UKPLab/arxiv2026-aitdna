@@ -1,5 +1,6 @@
 import os
 import json
+from datasets import load_dataset
 from torch.utils.data import Dataset
 from ..AITDNotions import AITDNotions
 from .DatasetName import DatasetName
@@ -7,13 +8,13 @@ from .Notion import Notion
 
 
 class AitdDataset(Dataset):
-    def __init__(self, dataset: DatasetName, root_dir: str, notion: Notion, with_meta: bool = False, **kwargs):
+    def __init__(self, dataset: DatasetName, notion: Notion, root_dir: str | None = None, with_meta: bool = False, **kwargs):
         """Creates a dataset for the specified notion.
         Uses data from all user studies inside root_dir.
-
         Args:
             dataset (DatasetName): dataset to load.
             root_dir (str): root directory. Structure inside it: root/study/user/task
+            If dataset == DatasetName.AITDNA, root_dir is not needed (since AITDNA is loaded from huggingface).
             notion (Notion): notion to use
             **kwargs: Depends on the notion. Available combinations:
             Notion.BOUNDARY_LEVEL: 
@@ -31,32 +32,7 @@ class AitdDataset(Dataset):
         data = []
         meta = []
         if dataset == DatasetName.AITDNA:
-            for study in os.listdir(root_dir):
-                for user in os.listdir(os.path.join(root_dir, study)):
-                    for task in os.listdir(os.path.join(root_dir, study, user)):
-                        task_path = os.path.join(root_dir, study, user, task)
-                        data.append(self.extract_data_for_text(task_path, notion, user, task=task, **kwargs))
-                        if with_meta:
-                            user_task_assignment_path = os.path.join(task_path, "statistics", "user_task_assignment.json")
-                            with open(user_task_assignment_path, "r") as f:
-                                task_stats = json.load(f)
-                            # fix for users that participated twice in the same US
-                            if "_" in user:
-                                user_name = user.split("_")[0]
-                            else:
-                                user_name = user
-                            metadata = {
-                                "author": user_name
-                            }
-                            if "model" in task_stats:
-                                metadata["model"] = task_stats["model"]
-                                metadata["temperature"] = task_stats["temperature"]
-                                metadata["human_only"] = False
-                            else:
-                                metadata["human_only"] = True
-                            metadata["setting"] = task_stats["setting"] if "setting" in task_stats else None
-                            metadata["task"] = task_stats["task"] if "task" in task_stats else None
-                            meta.append(metadata)
+                data, meta = self.extract_data_aitdna_hf(notion)
         elif dataset == DatasetName.AITDNA_SYNTHETIC:
             for model in os.listdir(root_dir):
                 for task in os.listdir(os.path.join(root_dir, model)):
@@ -84,9 +60,217 @@ class AitdDataset(Dataset):
         if self.with_meta:
             self.meta = meta
         self.notion = notion
-    
 
-    def extract_data_for_text(self, task_path: str, notion: Notion, user: str = None, **kwargs):
+
+    def extract_data_aitdna_hf(self, notion, **kwargs):
+        def matches_slevel(x:str):
+                    if type(x) is not str or len(x) < 2 or not x.startswith("C"):
+                        return True
+                    return int(x[1:]) > strictness_level
+
+        match notion:
+            case Notion.SPAN_LEVEL:
+                dataset = load_dataset("marinajim/AITDNA", name="span", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    data.append(dp["data"])
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.TOKEN_LEVEL:
+                dataset = load_dataset("marinajim/AITDNA", name="token", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    data.append(dp["data"])
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.SENTENCE_LEVEL:
+                threshold = kwargs.get("sentence_level_threshold")
+                if not threshold or threshold == 0.5:
+                    dataset = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+
+                if threshold < 0 or threshold > 1:
+                    raise ValueError("sentence_level_threshold has to be between 0 and 1!")
+
+                notions = AITDNotions()
+                dataset = load_dataset("marinajim/AITDNA", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    text = notions.get_final_text_by_user_sentence_level(edits=dp["data"], threshold=threshold)
+                    data.append(text)
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.DOCUMENT_LEVEL:
+                threshold = kwargs.get("document_level_threshold")
+                if not threshold or threshold == 0.5:
+                    dataset = load_dataset("marinajim/AITDNA", name="document", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+
+                if threshold < 0 or threshold > 1:
+                    raise ValueError("document_level_threshold has to be between 0 and 1!")
+
+                notions = AITDNotions()
+                dataset = load_dataset("marinajim/AITDNA", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    text = notions.get_final_text_by_user_document_level(edits=dp["data"], threshold=threshold)
+                    data.append(text)
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.BOUNDARY_LEVEL:
+                n_segments = kwargs.get("n_segments", 5)
+                length_penalty = kwargs.get("length_penalty", 1)
+                impurity_penalty = kwargs.get("impurity_penalty", 1)
+                if n_segments in [2, 5, 10] and length_penalty == impurity_penalty == 1:
+                    dataset = load_dataset("marinajim/AITDNA", name="boundary", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+                else:
+                    notions = AITDNotions()
+                    dataset = load_dataset("marinajim/AITDNA", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        text = notions.get_final_text_by_user_boundary_level(dp["data"],
+                                                                        n_seg=n_segments,
+                                                                        length_penalty=length_penalty,
+                                                                        impurity_penalty=impurity_penalty)
+                        data.append(text)
+                        meta.append(dp["metadata"])
+                    return data, meta
+
+            case Notion.CONTENT_BASED:
+
+                llm_type = kwargs.get("llm_type", "gpt-5.4-nano")
+                strictness_level = kwargs.get("strictness_level", 3)
+                task = kwargs.get("task")[len("Task X.Y: "):]
+
+                notions = AITDNotions()
+                if llm_type == "gpt-5.4-nano" and strictness_level == 3:
+                    dataset = load_dataset("marinajim/AITDNA", name="content", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+            
+                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                data = []
+                meta = []
+                for dp in sentence_ds:
+                    sentences = dp["data"]
+                    labels = notions.get_content_based_labels(sentences, llm_type, task)
+                    for i, s in enumerate(sentences):
+                        if s["author"] in ["Bot", "Mixed"]:
+                            multi_label = labels[i]
+                            no_violation = all(map(matches_slevel, multi_label))
+                            if no_violation:
+                                sentences[i]["author"] = "User"
+                                sentences[i]["queries"] = []
+                    data.append(sentences)
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.INTENT_BASED:
+                llm_type = kwargs.get("llm_type", "gpt-5.4-nano")
+                looseness_level = kwargs.get("looseness_level", 1)
+                task = kwargs.get("task")[len("Task X.Y: "):]
+
+                notions = AITDNotions()
+                if llm_type == "gpt-5.4-nano" and looseness_level == 1:
+                    dataset = load_dataset("marinajim/AITDNA", name="intent", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+            
+                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                data = []
+                meta = []
+                for dp in sentence_ds:
+                    sentences = dp["data"]
+                    labels = notions.get_intent_based_labels(sentences, llm_type, task)
+                    for i, s in enumerate(sentences):
+                        if s["author"] in ["Bot", "Mixed"]:
+                            multi_label = labels[i]
+                            no_violation = all(map(matches_slevel, multi_label))
+                            if no_violation:
+                                sentences[i]["author"] = "User"
+                                sentences[i]["queries"] = []
+                    data.append(sentences)
+                    meta.append(dp["metadata"])
+                return data, meta
+            
+
+            case Notion.MEMBERSHIP_BASED:
+                n_gram_len = kwargs.get("n_gram_len", 2)
+                notions = AITDNotions()
+                if n_gram_len == 2:
+                    dataset = load_dataset("marinajim/AITDNA", name="membership", split="test")
+                    data = []
+                    meta = []
+                    for dp in dataset:
+                        data.append(dp["data"])
+                        meta.append(dp["metadata"])
+                    return data, meta
+    
+                population = kwargs.get("population", None)
+                if not population:
+                    raise ValueError("Population not found!")
+                
+                dataset = load_dataset("marinajim/AITDNA", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    text = notions.get_final_text_by_user_population_based(edits=dp["data"],
+                                                                           reference_corpus=population,
+                                                                           n_gram_len=n_gram_len)
+                    data.append(text)
+                    meta.append(dp["metadata"])
+                return data, meta
+
+            case Notion.AUTHORSHIP_BASED:
+                population = kwargs.get("population", None)
+                if not population:
+                    raise ValueError("Population not found!")
+                
+                dataset = load_dataset("marinajim/AITDNA", split="test")
+                data = []
+                meta = []
+                for dp in dataset:
+                    text = notions.get_final_text_by_user_population_based(edits=dp["data"],
+                                                                           reference_corpus=population,
+                                                                           n_gram_len=n_gram_len)
+                    data.append(text)
+                    meta.append(dp["metadata"])
+                return data, meta
+
+    def extract_data_for_text(self, task_path: str, notion: Notion, **kwargs):
         match notion:
             case Notion.SPAN_LEVEL:
                 with open(os.path.join(task_path, "notions", "final_text_by_user_span_level.json"),
@@ -253,6 +437,30 @@ class AitdDataset(Dataset):
 
             case _:
                 raise ValueError(f"Unknown notion type {notion}. Cannot create dataset")
+
+
+    def extract_metadata(self, task_path, user):
+        user_task_assignment_path = os.path.join(task_path, "statistics", "user_task_assignment.json")
+        with open(user_task_assignment_path, "r") as f:
+            task_stats = json.load(f)
+        # fix for users that participated twice in the same US
+        if "_" in user:
+            user_name = user.split("_")[0]
+        else:
+            user_name = user
+        metadata = {
+            "author": user_name
+        }
+        if "model" in task_stats:
+            metadata["model"] = task_stats["model"]
+            metadata["temperature"] = task_stats["temperature"]
+            metadata["human_only"] = False
+        else:
+            metadata["human_only"] = True
+        metadata["setting"] = task_stats["setting"] if "setting" in task_stats else None
+        metadata["task"] = task_stats["task"] if "task" in task_stats else None
+        return metadata
+
 
     def __len__(self):
         return len(self.data)
