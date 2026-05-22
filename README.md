@@ -29,31 +29,51 @@ Don't hesitate to send us an e-mail or report an issue, if something is broken (
 5. Run the initialization script `python -m aitdna install`
 6. Get started (see below)
 
-## Use Dataset
-To load the dataset from huggingface, run: 
-```python
-# available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"
-ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
-loader = DataLoader(ds, batch_size=1, collate_fn=lambda dp: dp)
-for batch in loader:
-    for text in batch:
-        data = text["data"]
-        metadata = text["metadata"]
-        for snippet in data:
-            print(snippet)
-```
+## Datasets
+Our framework represents AITDNA and five other datasets (CoAuthor, DetectRL, Mixset, SenDetEx, Boundary Detection for TriBERT) in different notions of AI text and evaluates predictors on these notions. For the notion representation, we use a wrapper, AitdDataset. AitdDataset allows to represent all six datasets in different notions with custom hyperparameter values (for instance, you can specify AI token threshold for document-level labeling). 
+When instantiating AitdDataset, you have to specify:
+- The dataset you want to load (see `aitdna/notions/data_loading/Datasets.py` for all options).
+- The notion you want to use (see `aitdna/notions/data_loading/Notion.py` for all options).
+- (Optional) Hyperparameter values for your notion (see `aitdna/notions/data_loading/AitdDataset.py` for all options).
+- (Optional, only for other datasets) Path to dataset root.
 
-If you wish to evaluate another dataset with our
+### Use AITDNA
+The framework uses our AITDNA dataset from huggingface [TODO url] and load it in the AitdDataset wrapper.
 
 ```python
 from torch.utils.data import DataLoader
 
 from aitdna.notions.data_loading import AitdDataset, DatasetName, Notion
 
-root_dir = "dataset-root-directory"
-dataset = AitdDataset(dataset=DatasetName.COAUTHOR, root_dir=root_dir,
-                  notion=Notion.DOCUMENT_LEVEL)
-loader = DataLoader(dataset, batch_size=2, collate_fn=lambda data_point: data_point)
+dataset = AitdDataset(dataset=DatasetName.AITDNA,
+                  notion=Notion.DOCUMENT_LEVEL,
+                  document_level_threshold=0.75)
+loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
+for batch in loader:
+    for data_point in batch:
+        for snippet in data_point:
+          # do things
+          ...
+```
+### Use other datasets
+ To create the different notions for other datasets, we represent each text as a list of quill-delta edits. For instance, if the data format is (human original text, AI rewritten version), we first insert the original text as a human edit, and then incrementally add AI edits. We use [diff-match-patch](https://github.com/google/diff-match-patch), a package that balances semantic and syntactic differences in edit creation.
+
+For the edit creation process, run 
+```console
+python -m aitdna create_dataset --dataset_type mixset --dst_root data/processed/mixset
+```
+`dst_root` will store the processed version of the dataset, including recreated edits and all notions with their default hyperparameter values.
+
+To use the dataset with AitdDataset, do:
+```python
+from torch.utils.data import DataLoader
+
+from aitdna.notions.data_loading import AitdDataset, DatasetName, Notion
+
+dataset = AitdDataset(dataset=DatasetName.MIXSET,
+                  notion=Notion.DOCUMENT_LEVEL,
+                  root_dir="data/processed/mixset") # path where you saved your dataset
+loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
 for batch in loader:
     for data_point in batch:
         for snippet in data_point:
@@ -62,43 +82,20 @@ for batch in loader:
 ```
 
 ## Evaluate Models
-To evaluate predictors, adapt search config file to your needs. Specify what predictor and dataset you want to evaluate,
-the path to the dataset, and hyperparameter values.
+To evaluate predictors, run this command. 
 
 ```console
 python -m txaitd run_predictors --path_to_config_json aitdna/experiments/config/search_config.json --cache_dir your-cache-dir
-
 ```
-### Data Loading
-The code below shows a simple example of data loading. Each data point corresponds to one text in one notion, represented as a list of dicts.
+Adapt the search config file to your needs. Specify what predictor and dataset you want to evaluate, the path to the dataset, and hyperparameter values.
 
-You need to specify:
-- Path to dataset root. For AITDNA, it's the folder with all study folders. For the other datasets, it's the one with all data points.
-- What dataset you want to load (see `scripts/data_scripts/data_loading/Datasets.py` for all options).
-- The notion that you want to use (see `scripts/data_scripts/data_loading/Notion.py` for all options)
 
-```python
-from torch.utils.data import DataLoader
-
-from aitdna.notions.data_loading import AitdDataset, DatasetName, Notion
-
-root_dir = "dataset-root-directory"
-dataset = AitdDataset(dataset=DatasetName.COAUTHOR, root_dir=root_dir,
-                  notion=Notion.DOCUMENT_LEVEL)
-loader = DataLoader(dataset, batch_size=2, collate_fn=lambda data_point: data_point)
-for batch in loader:
-    for data_point in batch:
-        for snippet in data_point:
-          # do things
-          ...
-```
-
-### Statistics generation
+## Statistics generation
 To generate all statistics, use
 ```console
-python -m aitdna compute_dataset_stats -r data/aitdna_anonymized/formatted -n AITDNA -d all_stats.json
+python -m aitdna compute_dataset_stats -r data/processed/mixset -n MIXSET -d all_stats.json
 ```
-Following statistics will be generated:
+The following statistics will be generated:
 1. Statistics per sentence (computed for user, bot, and mixed):
 - Avg syntax tree depth
 - Avg syntax tree width
@@ -112,7 +109,7 @@ Following statistics will be generated:
 - Total vocabulary size
 - Avg #distinct lemmas (vocabulary size / total # tokens by this user)
 - Counts of all POS
-- Avg readability scores (computed only for snippets > 100 words): flesch reading ease, flesch kincaid grade level, gunning fog, and dalle-chall.
+- Avg readability scores (computed only for snippets > 100 words): Flesch Reading Ease, Flesch Kincaid Grade Level, Gunning Fog, and Dale-Chall.
 
 
 3. Statistics per span (for span-level notation; authors: user and bot)
@@ -122,39 +119,72 @@ Following statistics will be generated:
 - Avg #boundaries span-level
 
 
-## Data Processing
-Steps for the dataset creation and processing.
-### Preparation
-Make sure to prepare the following data:
-- Logs from CARE. These should include: 
+## Repository structure
+```bash
+aitdna/
+├── analysis
+│   ├── argument_evaluation.py # Evaluation of argument number for argumentative essays
+│   ├── BakgroundInfoProcessor.py # Stats for user background information
+│   ├── DependencyTree.py # Linguistic stats computer
+│   ├── eval_polcies.py # Policy evaluation
+│   ├── organize_stats_table.py
+│   ├── RawDataAnalyser.py # Stats computer for raw AITDNA data
+│   └── StatsComputer.py # Stats computer for all datasets
+├── cli.py # CLI command definition
+├── datasets
+│   ├── aitdna_dataset
+│   │   ├── huggingface_upload
+│   │   │   └── push_to_hf.py # Upload AITDNA to HF
+│   │   ├── postprocessing
+│   │   │   ├── anonymization.py # AITDNA data anonymization
+│   │   │   └── generate_synthetic_texts.py # (Experimental) Synthetic AITDNA version generation
+│   │   ├── preprocessing
+│   │   │   └── process_csv.py # Processing of raw CARE data for AITDNA creation
+│   │   └── processing
+│   │       ├── DataFormatter.py # Formatter for AITDNA creation
+│   │       └── format_data.py # Main script for AITDNA creation
+│   ├── boundary_detection.py # Creation of the BD dataset
+│   ├── coauthor.py # Creation of the Coauthor dataset
+│   ├── detectRL.py # Creation of the DetectRL dataset
+│   ├── mixset.py # Creation of the Mixset dataset
+│   └── senDetEx.py # Creation of the SenDetEx dataset
+├── experiments
+│   ├── config
+│   │   ├── dataset_paths.json
+│   │   └── search_config.json
+│   ├── mgtd
+│   │   ├── arguments.py # Prediction argument specification
+│   │   ├── evaluate.py # Evaluation of commercial detectors
+│   │   ├── majority_baseline.py # Majority baseline code
+│   │   ├── methods
+│   │   │   ├── base.py # Base detection method
+│   │   │   ├── generation.py # Definition of all MGTD methods
+│   │   │   └── preprocessing
+│   │   │       ├── base.py # Base preprocessor for MGTD
+│   │   │       └── generation.py # Data preprocessing for MGTD
+│   │   ├── mgtd_datasets
+│   │   │   └── DetectionDataset.py # Dataset wrapper for evaluation
+│   │   ├── trainer
+│   │   │   └── custom_trainer.py # Trainer class with prediction code
+│   │   ├── train_predict.py # Main script for evaluation
+│   │   └── utils.py
+│   ├── predict.py
+│   └── utils.py
+├── install.py # Package installation script
+├── __main__.py # Main entry point
+├── notions
+│   ├── AITDNotions.py # Creation of different notions
+│   ├── ContentPolicy.py # Content policy for content-based notion
+│   ├── CostFunction.py # Cost function for boundary-level notion
+│   ├── data_loading
+│   │   ├── AitdDataset.py # Representation of datasets in notions
+│   │   ├── DatasetName.py # Available datasets
+│   │   ├── Notion.py # Available notions
+│   │   └── Population.py # Population for membership and authorship notions
+│   ├── IntentPolicy.py # Intent policy for intent-based notion
+│   └── NotionConverter.py # Converter for genesis notions
+└── utils.py
 ```
-document_edit.csv
-document.csv
-human_ai_perception.csv
-nlp_editor_request.csv
-nlp_editor_response.csv
-user.csv
-```
-- Consent form data in `.csv` format
-- Surveys data (background and UX survey) in `.csv` format
-- User-task-model assignment in `JSON` format
-
-### CSV Data Processing
-
-Data preprocessing. Processes CARE data between cutoff dates. Src_root should contain logs from CARE. One run processes one study session. Results in raw edits saved in JSON format, in form study/user/task/edits.json
-
-```console
-python aitdna/datasets/aitdna/preprocessing/process_csv.py --src_root data/raw_data/2026-02-20-snapshot --dst_root "data/datasets/original/2020-01-22" --consent_form_path data/raw_data/surveys_data/processed/consent.csv --earliest_cutoff_date "2026-01-18 09:00:00.00+00" --latest_cutoff_date "2026-02-20 00:00:00.00+00"
-```
-
-### Data Formatting
-Data formatting. Formats edits themselves (better naming of operations, users, time starting from 0s), filters and flags bad data, computes notions and statistics. If --process_all flag passed, processes all data for all studies. Otherwise, processes only data for one user study. Format of root and dst is then: --src_root data/datasets/original/YOUR STUDY --dst_root data/datasets/formatted/YOUR STUDY, and do not pass the process_all flag.
-
-```console
-python -m aitdna format_dataset --src_root data/aitdna/original --dst_root data/aitdna/formatted --ns_segments 2 5 10 --survey_paths data/raw_data/surveys_data/processed/background.csv data/raw_data/surveys_data/processed/ux_survey.csv --user_task_assignment data/raw_data/user_task_assignment/user_task_assignment.json --process_all
-
-```
-
 ## Cite
 
 Please use the following citation:
