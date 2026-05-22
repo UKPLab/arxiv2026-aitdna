@@ -8,7 +8,7 @@ from .Notion import Notion
 
 
 class AitdDataset(Dataset):
-    def __init__(self, dataset: DatasetName, root_dir: str | None, notion: Notion, with_meta: bool = False, **kwargs):
+    def __init__(self, dataset: DatasetName, notion: Notion, root_dir: str | None = None, with_meta: bool = False, **kwargs):
         """Creates a dataset for the specified notion.
         Uses data from all user studies inside root_dir.
         Args:
@@ -70,7 +70,7 @@ class AitdDataset(Dataset):
 
         match notion:
             case Notion.SPAN_LEVEL:
-                dataset = load_dataset("UKPLab/AITDNA", name="span", split="test")
+                dataset = load_dataset("marinajim/AITDNA", name="span", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -79,7 +79,7 @@ class AitdDataset(Dataset):
                 return data, meta
 
             case Notion.TOKEN_LEVEL:
-                dataset = load_dataset("UKPLab/AITDNA", name="token", split="test")
+                dataset = load_dataset("marinajim/AITDNA", name="token", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -90,7 +90,7 @@ class AitdDataset(Dataset):
             case Notion.SENTENCE_LEVEL:
                 threshold = kwargs.get("sentence_level_threshold")
                 if not threshold or threshold == 0.5:
-                    dataset = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="sentence", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -102,19 +102,19 @@ class AitdDataset(Dataset):
                     raise ValueError("sentence_level_threshold has to be between 0 and 1!")
 
                 notions = AITDNotions()
-                dataset = load_dataset("UKPLab/AITDNA", split="test")
+                dataset = load_dataset("marinajim/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
                     text = notions.get_final_text_by_user_sentence_level(edits=dp["data"], threshold=threshold)
                     data.append(text)
-                    meta.append(dp["meta"])
+                    meta.append(dp["metadata"])
                 return data, meta
 
             case Notion.DOCUMENT_LEVEL:
                 threshold = kwargs.get("document_level_threshold")
                 if not threshold or threshold == 0.5:
-                    dataset = load_dataset("UKPLab/AITDNA", name="document", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="document", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -126,13 +126,13 @@ class AitdDataset(Dataset):
                     raise ValueError("document_level_threshold has to be between 0 and 1!")
 
                 notions = AITDNotions()
-                dataset = load_dataset("UKPLab/AITDNA", split="test")
+                dataset = load_dataset("marinajim/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
                     text = notions.get_final_text_by_user_document_level(edits=dp["data"], threshold=threshold)
                     data.append(text)
-                    meta.append(dp["meta"])
+                    meta.append(dp["metadata"])
                 return data, meta
 
             case Notion.BOUNDARY_LEVEL:
@@ -140,7 +140,7 @@ class AitdDataset(Dataset):
                 length_penalty = kwargs.get("length_penalty", 1)
                 impurity_penalty = kwargs.get("impurity_penalty", 1)
                 if n_segments in [2, 5, 10] and length_penalty == impurity_penalty == 1:
-                    dataset = load_dataset("UKPLab/AITDNA", name="boundary", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="boundary", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -149,7 +149,7 @@ class AitdDataset(Dataset):
                     return data, meta
                 else:
                     notions = AITDNotions()
-                    dataset = load_dataset("UKPLab/AITDNA", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -169,7 +169,7 @@ class AitdDataset(Dataset):
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and strictness_level == 3:
-                    dataset = load_dataset("UKPLab/AITDNA", name="content", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="content", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -177,7 +177,7 @@ class AitdDataset(Dataset):
                         meta.append(dp["metadata"])
                     return data, meta
             
-                sentence_ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
+                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
                 data = []
                 meta = []
                 for dp in sentence_ds:
@@ -201,7 +201,7 @@ class AitdDataset(Dataset):
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and looseness_level == 1:
-                    dataset = load_dataset("UKPLab/AITDNA", name="intent", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="intent", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -209,7 +209,7 @@ class AitdDataset(Dataset):
                         meta.append(dp["metadata"])
                     return data, meta
             
-                sentence_ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
+                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
                 data = []
                 meta = []
                 for dp in sentence_ds:
@@ -231,7 +231,7 @@ class AitdDataset(Dataset):
                 n_gram_len = kwargs.get("n_gram_len", 2)
                 notions = AITDNotions()
                 if n_gram_len == 2:
-                    dataset = load_dataset("UKPLab/AITDNA", name="membership", split="test")
+                    dataset = load_dataset("marinajim/AITDNA", name="membership", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -243,7 +243,7 @@ class AitdDataset(Dataset):
                 if not population:
                     raise ValueError("Population not found!")
                 
-                dataset = load_dataset("UKPLab/AITDNA", split="test")
+                dataset = load_dataset("marinajim/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -251,7 +251,7 @@ class AitdDataset(Dataset):
                                                                            reference_corpus=population,
                                                                            n_gram_len=n_gram_len)
                     data.append(text)
-                    meta.append(dp["meta"])
+                    meta.append(dp["metadata"])
                 return data, meta
 
             case Notion.AUTHORSHIP_BASED:
@@ -259,7 +259,7 @@ class AitdDataset(Dataset):
                 if not population:
                     raise ValueError("Population not found!")
                 
-                dataset = load_dataset("UKPLab/AITDNA", split="test")
+                dataset = load_dataset("marinajim/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -267,10 +267,10 @@ class AitdDataset(Dataset):
                                                                            reference_corpus=population,
                                                                            n_gram_len=n_gram_len)
                     data.append(text)
-                    meta.append(dp["meta"])
+                    meta.append(dp["metadata"])
                 return data, meta
 
-    def extract_data_for_text(self, task_path: str, notion: Notion, user: str = None, **kwargs):
+    def extract_data_for_text(self, task_path: str, notion: Notion, **kwargs):
         match notion:
             case Notion.SPAN_LEVEL:
                 with open(os.path.join(task_path, "notions", "final_text_by_user_span_level.json"),

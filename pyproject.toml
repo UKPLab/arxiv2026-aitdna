@@ -20,7 +20,7 @@ dynamic = ["version", "description"]
 dependencies = [
     "compact-json==1.8.1",
     "transformers==4.57.3",
-    "datasets==4.4.1",
+    "datasets==4.8.5",
     "torch==2.9.1",
     "pandas==2.3.3",
     "spacy==3.8.11",
@@ -44,5 +44,6 @@ dependencies = [
     "sacrebleu==2.6.0",
     "pangram-sdk==0.1.11",
     "gptzero==0.1.2",
-    "dspy"
+    "dspy==3.2.0",
+    "multiprocess==0.70.11"
 ]

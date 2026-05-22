@@ -22,12 +22,12 @@ Don't hesitate to send us an e-mail or report an issue, if something is broken (
 
 ## Quickstart
 
-1. Create conda env with `conda create -p ./venv python=3.11`, then source it `conda activate ./venv`
-2. Download spacy tokenizer `python -m spacy download en_core_web_lg`
-3. Install flit `pip install flit`
-5. Run `flit install`
-6. Run the initialization script `python -m aitdna install`
-7. Get started (see below)
+1. Create conda env with `conda create -n aitdna_env python=3.11`, then activate it `conda activate aitdna_env`
+2. Install flit `pip install flit`
+3. Run `python -m flit install --symlink`
+4. Download spacy tokenizer `python -m spacy download en_core_web_lg`
+5. Run the initialization script `python -m aitdna install`
+6. Get started (see below)
 
 ## Use Dataset
 To load the dataset from huggingface, run: 

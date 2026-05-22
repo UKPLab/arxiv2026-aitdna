@@ -3,8 +3,8 @@ import json
 import datasets
 from datasets import Dataset
 
-AITDNA_ROOT = "AITDNA_new"
-NOTIONS = ["original", "sentence", "document", "boundary", "intent", "content", "span", "membership"] 
+AITDNA_ROOT = "AITDNA"
+NOTIONS = ["original", "sentence", "document", "boundary", "intent", "content", "span", "membership", "token"] 
 
 def get_path(task_path, notion):
     match notion:
@@ -23,6 +23,8 @@ def get_path(task_path, notion):
             return os.path.join(task_path, "notions", "final_text_by_user_membership_based.json")
         case "span":
             return os.path.join(task_path, "notions", "final_text_by_user_span_level.json")
+        case "token":
+            return os.path.join(task_path, "notions", "final_text_by_user_token_level.json")
         case "original":
             return os.path.join(task_path, "edits.json")
 
