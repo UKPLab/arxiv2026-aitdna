@@ -120,7 +120,7 @@ def create_sendetex(argv=None):
 def normalize(text):
     text = re.sub(r'\s+([,?.!])', r'\1', text)
     text = text.replace("`` ", '"').replace("``", '"').replace("''", '"').replace("[ WP ]", "[WP]")
-    text = text.replace("“", '"'). replace("”", '"').replace("( ", "(").replace(" )", ")") # TODO is it OK to delete **?
+    text = text.replace("“", '"'). replace("”", '"').replace("( ", "(").replace(" )", ")")
     text = text.replace(".** **", ". ").replace("** **", ". ").replace("**", ". ").replace(".\n", ". ")
     text = text.replace(" n't", "n't")
     text = re.sub(r'\s+', ' ', text)

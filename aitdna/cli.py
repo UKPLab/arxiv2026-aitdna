@@ -119,6 +119,5 @@ def compute_dataset_stats(argv=None):
     run_stats_computation(argv=argv)
 
 def run_predictors(argv=None):
-    # TODO add evaluate_all option
     run_evaluate_predictors(argv=argv)
 

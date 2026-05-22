@@ -381,7 +381,6 @@ class StatsComputer():
 
         dataset = AitdDataset(self.dataset_name, self.dataset_root,
                               Notion.TOKEN_LEVEL, with_meta=self.dataset_name == DatasetName.AITDNA and no_human_only)
-        #todo fix this for plot
 
         # discard human-only condition for analysis
         if self.dataset_name == DatasetName.AITDNA and no_human_only:
