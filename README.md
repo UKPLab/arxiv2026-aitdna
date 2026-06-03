@@ -38,7 +38,7 @@ When instantiating AitdDataset, you have to specify:
 - (Optional, only for other datasets) Path to dataset root.
 
 ### Use AITDNA
-The framework uses our AITDNA dataset from huggingface [TODO url] and load it in the AitdDataset wrapper.
+The framework uses our [AITDNA dataset](https://huggingface.co/datasets/UKPLab/AITDNA) from huggingface and load it in the AitdDataset wrapper.
 
 ```python
 from torch.utils.data import DataLoader
