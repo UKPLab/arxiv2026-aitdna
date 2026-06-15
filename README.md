@@ -194,7 +194,7 @@ Please use the following citation:
       title={'Your AI Text is not Mine': Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions}, 
       author={Nils Dycke and Marina Sakharova and Nico Daheim and Iryna Gurevych},
       year={2026},
-      journal = {arXiv preprint arXiv:2606.04906},
+      journal={arXiv preprint arXiv:2606.04906},
       url={https://arxiv.org/abs/2606.04906}
 }
 ```
