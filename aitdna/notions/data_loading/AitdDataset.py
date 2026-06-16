@@ -70,7 +70,7 @@ class AitdDataset(Dataset):
 
         match notion:
             case Notion.SPAN_LEVEL:
-                dataset = load_dataset("marinajim/AITDNA", name="span", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", name="span", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -79,7 +79,7 @@ class AitdDataset(Dataset):
                 return data, meta
 
             case Notion.TOKEN_LEVEL:
-                dataset = load_dataset("marinajim/AITDNA", name="token", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", name="token", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -90,7 +90,7 @@ class AitdDataset(Dataset):
             case Notion.SENTENCE_LEVEL:
                 threshold = kwargs.get("sentence_level_threshold")
                 if not threshold or threshold == 0.5:
-                    dataset = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -102,7 +102,7 @@ class AitdDataset(Dataset):
                     raise ValueError("sentence_level_threshold has to be between 0 and 1!")
 
                 notions = AITDNotions()
-                dataset = load_dataset("marinajim/AITDNA", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -114,7 +114,7 @@ class AitdDataset(Dataset):
             case Notion.DOCUMENT_LEVEL:
                 threshold = kwargs.get("document_level_threshold")
                 if not threshold or threshold == 0.5:
-                    dataset = load_dataset("marinajim/AITDNA", name="document", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="document", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -126,7 +126,7 @@ class AitdDataset(Dataset):
                     raise ValueError("document_level_threshold has to be between 0 and 1!")
 
                 notions = AITDNotions()
-                dataset = load_dataset("marinajim/AITDNA", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -140,7 +140,7 @@ class AitdDataset(Dataset):
                 length_penalty = kwargs.get("length_penalty", 1)
                 impurity_penalty = kwargs.get("impurity_penalty", 1)
                 if n_segments in [2, 5, 10] and length_penalty == impurity_penalty == 1:
-                    dataset = load_dataset("marinajim/AITDNA", name="boundary", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="boundary", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -149,7 +149,7 @@ class AitdDataset(Dataset):
                     return data, meta
                 else:
                     notions = AITDNotions()
-                    dataset = load_dataset("marinajim/AITDNA", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -169,7 +169,7 @@ class AitdDataset(Dataset):
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and strictness_level == 3:
-                    dataset = load_dataset("marinajim/AITDNA", name="content", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="content", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -177,7 +177,7 @@ class AitdDataset(Dataset):
                         meta.append(dp["metadata"])
                     return data, meta
             
-                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                sentence_ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
                 data = []
                 meta = []
                 for dp in sentence_ds:
@@ -201,7 +201,7 @@ class AitdDataset(Dataset):
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and looseness_level == 1:
-                    dataset = load_dataset("marinajim/AITDNA", name="intent", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="intent", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -209,7 +209,7 @@ class AitdDataset(Dataset):
                         meta.append(dp["metadata"])
                     return data, meta
             
-                sentence_ds = load_dataset("marinajim/AITDNA", name="sentence", split="test")
+                sentence_ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
                 data = []
                 meta = []
                 for dp in sentence_ds:
@@ -231,7 +231,7 @@ class AitdDataset(Dataset):
                 n_gram_len = kwargs.get("n_gram_len", 2)
                 notions = AITDNotions()
                 if n_gram_len == 2:
-                    dataset = load_dataset("marinajim/AITDNA", name="membership", split="test")
+                    dataset = load_dataset("UKPLab/AITDNA", name="membership", split="test")
                     data = []
                     meta = []
                     for dp in dataset:
@@ -243,7 +243,7 @@ class AitdDataset(Dataset):
                 if not population:
                     raise ValueError("Population not found!")
                 
-                dataset = load_dataset("marinajim/AITDNA", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:
@@ -259,7 +259,7 @@ class AitdDataset(Dataset):
                 if not population:
                     raise ValueError("Population not found!")
                 
-                dataset = load_dataset("marinajim/AITDNA", split="test")
+                dataset = load_dataset("UKPLab/AITDNA", split="test")
                 data = []
                 meta = []
                 for dp in dataset:

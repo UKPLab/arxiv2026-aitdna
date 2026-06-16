@@ -62,6 +62,6 @@ class SimpleAITD(object):
         all_outputs = []
         test_dataloader = self._get_dataloader()
         for idx, batch in tqdm(enumerate(test_dataloader)):
-            outputs = self.method.predict(batch, self.model, test_dataset_raw[idx*self.args.eval_batch_size: idx*self.args.eval_batch_size + self.args.eval_batch_size])
+            outputs = self.method.predict(batch, self.model, test_dataset_raw[idx*self.data_args.eval_batch_size: idx*self.data_args.eval_batch_size + self.data_args.eval_batch_size])
             all_outputs.extend(outputs)
         return all_outputs

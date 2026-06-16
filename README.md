@@ -85,7 +85,7 @@ for batch in loader:
 To evaluate predictors, run this command. 
 
 ```console
-python -m txaitd run_predictors --path_to_config_json aitdna/experiments/config/search_config.json --cache_dir your-cache-dir
+python -m aitdna run_predictors --path_to_config_json aitdna/experiments/config/search_config.json --cache_dir your-cache-dir
 ```
 Adapt the search config file to your needs. Specify what predictor and dataset you want to evaluate, the path to the dataset, and hyperparameter values.
 
