@@ -59,7 +59,7 @@ class Method(abc.ABC):
     def compute_metrics(self, p: EvalPrediction):
         raise NotImplementedError()
 
-    def _get_dataset(self, config_name=None, train=False, process=True):
+    def _get_dataset(self, config_name=None, process=True):
         all_datasets = []
         if config_name is None:
             for dataset_name in self.data_args.dataset_name.split(";"):
@@ -93,10 +93,9 @@ class Method(abc.ABC):
                 batch_size=1000,
                 writer_batch_size=1000,
                 load_from_cache_file=False,
-                remove_columns=old_eval_column_names,
-                fn_kwargs={"train": train}
+                remove_columns=old_eval_column_names
             )
         return dataset
 
     def get_test_dataset(self, process=True):
-        return self._get_dataset(train=False, process=process)
+        return self._get_dataset(process=process)

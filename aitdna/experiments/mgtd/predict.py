@@ -41,13 +41,6 @@ method_classes = [
     # GPTZeroPredictor,
 ]
 
-
-def get_config_class(model_args):
-    return AutoConfig
-
-def get_tokenizer_class(config, model_args):
-    return AutoTokenizer
-
 def get_tokenizer_name(config, model_args):
     if model_args.tokenizer_name:
         return model_args.tokenizer_name
@@ -90,10 +83,6 @@ def run_and_evaluate_local(method_definition, predictor, data_args, model_args):
                 json.dump({}, f)
 
 
-def run_prediction(method_definition, predictor, data_args, model_args):
-    run_and_evaluate_local(method_definition=method_definition, predictor=predictor, data_args=data_args, model_args=model_args)
-
-
 def run_predict_api(model_args, data_args):
     evaluation_folder = data_args.evaluation_folder
     dataset = AitdDataset(dataset=DatasetName(data_args.dataset_name),
@@ -129,9 +118,7 @@ def run_predict(model_args, data_args):
     if method_class and method_class.predictor_type == "api":
         run_predict_api(model_args, data_args)
     else:
-        config_class = get_config_class(model_args)
-
-        config = config_class.from_pretrained(
+        config = AutoConfig.from_pretrained(
             model_args.config_name if model_args.config_name else model_args.model_name_or_path,
             cache_dir=model_args.cache_dir,
             revision=model_args.model_revision,
@@ -140,8 +127,7 @@ def run_predict(model_args, data_args):
             config.num_labels = model_args.num_labels
 
 
-        tokenizer_class = get_tokenizer_class(config, model_args)
-        tokenizer = tokenizer_class.from_pretrained(
+        tokenizer = AutoTokenizer.from_pretrained(
             get_tokenizer_name(config, model_args),
             padding_side="left",
             cache_dir=model_args.cache_dir,
@@ -178,31 +164,13 @@ def run_predict(model_args, data_args):
             data_args=data_args,
             dataset=eval_dataset
         )
-        run_prediction(method_definition, predictor, data_args, model_args)
+        run_and_evaluate_local(method_definition=method_definition, predictor=predictor,
+                               data_args=data_args, model_args=model_args)
+        
 
 
 def set_envs(cache_dir):
-    os.environ["TRANSFORMERS_CACHE"] = cache_dir
-    os.environ["HF_HOME"] = cache_dir
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-    os.environ["VLLM_CACHE_ROOT"] = cache_dir
-    os.environ["VLLM_CONFIG_ROOT"] = cache_dir
-    os.environ["FLASHINFER_WORKSPACE_BASE"] = cache_dir
     os.environ["TRITON_CACHE_DIR"] = cache_dir
-
-    os.environ["VLLM_NO_USAGE_STATS"] = "1"
-    os.environ["DO_NOT_TRACK"] = "1"
-    # os.environ["VLLM_USE_V1"] = "0"
-    os.environ["TRANSFORMERS_CACHE"] = cache_dir
-    os.environ["HF_HOME"] = cache_dir
-    os.environ["HF_HUB_HOME"] = cache_dir
-    os.environ["HF_HUB_CACHE"] = cache_dir
-    os.environ["HF_DATASETS_CACHE"] = cache_dir
-    os.environ["HF_TOKEN"] = "TODO"
-
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 
 def main(argv=None):
     parser_arguments = (ModelArguments, DataPredictionArguments)

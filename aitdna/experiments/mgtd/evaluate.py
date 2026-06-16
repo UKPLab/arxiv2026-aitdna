@@ -5,8 +5,6 @@ from collections import defaultdict
 from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion, Population
 from aitdna.experiments.mgtd.mgtd_datasets.DetectionDataset import DetectionDataset
 
-import numpy as np
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_error, auc,  roc_curve, confusion_matrix, precision_recall_curve
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_error, auc,  roc_curve, confusion_matrix, precision_recall_curve
 
 def evaluate_document_level_pangram(gt_token: list[dict], gt_document: list[dict], prediction: dict):

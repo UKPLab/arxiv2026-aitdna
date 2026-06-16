@@ -98,7 +98,7 @@ class CausalSeq2SeqMethod(Method):
 
         self.tokenizer.padding_side = "left"
     
-    def preprocess_features(self, features, train=True):
+    def preprocess_features(self, features):
         processor = MGTDPreprocessor(self.config, self.data_args, self.model_args, self.tokenizer)
         input_ids, _ = processor.preprocess(features)
         return_dict = {
@@ -357,7 +357,7 @@ class APIMethod(Method):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def preprocess_features(self, features, train=False):
+    def preprocess_features(self, features):
         return [feature[0]["text"] for feature in features]
 
     def compute_metrics(self, predictions):
@@ -397,7 +397,7 @@ class ModernBERTPredictor(CausalSeq2SeqMethod, MGTDMethod):
     name = "modernBERT"
     predictor_type = "fine-tuned"
 
-    def preprocess_features(self, features, train=True):
+    def preprocess_features(self, features):
         input_ids = []
         attention_mask = []
 

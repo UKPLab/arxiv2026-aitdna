@@ -1,6 +1,6 @@
 import os
 import json
-from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion, Population
+from aitdna.notions.data_loading import DatasetName
 from aitdna.experiments.mgtd.methods.generation import MGTDMethod
 from aitdna.experiments.mgtd.mgtd_datasets.DetectionDataset import DetectionDataset
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, confusion_matrix, precision_score, recall_score, \
