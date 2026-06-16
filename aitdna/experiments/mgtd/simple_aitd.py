@@ -9,11 +9,8 @@ from contextlib import nullcontext
 
 import numpy as np
 import torch
-from huggingface_hub import login
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
-# from vllm import LLM, SamplingParams
-# from vllm.inputs.data import TokensPrompt
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -58,7 +55,7 @@ class SimpleAITD(object):
 
 
     @torch.no_grad()
-    def predict(self, test_dataset, test_dataset_raw):
+    def predict(self, test_dataset_raw):
         all_outputs = []
         test_dataloader = self._get_dataloader()
         for idx, batch in tqdm(enumerate(test_dataloader)):

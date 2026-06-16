@@ -15,7 +15,7 @@ from pangram import Pangram
 from gptzero import GPTZeroAPI
 
 from aitdna.experiments.mgtd.methods.base import Method
-from aitdna.experiments.mgtd.methods.preprocessing.generation import MGTDPreprocessor
+from aitdna.experiments.mgtd.methods.preprocessing.preprocessing import MGTDPreprocessor
 from aitdna.experiments.mgtd.simple_aitd import SimpleAITD
 
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
@@ -96,12 +96,11 @@ class CausalSeq2SeqMethod(Method):
             # load_metric(metric, cache_dir=self.model_args.cache_dir) for metric in ["sacrebleu"]
         ]
 
-        if not self.data_args.is_training:
-            self.tokenizer.padding_side = "left"
+        self.tokenizer.padding_side = "left"
     
     def preprocess_features(self, features, train=True):
         processor = MGTDPreprocessor(self.config, self.data_args, self.model_args, self.tokenizer)
-        input_ids, _ = processor.preprocess(features, train=train)
+        input_ids, _ = processor.preprocess(features)
         return_dict = {
             "input_ids": input_ids,
             # "labels": labels
@@ -118,7 +117,7 @@ class CausalSeq2SeqMethod(Method):
     def get_model_class(self, config: PretrainedConfig):
         return AutoModelForCausalLM
 
-    def get_trainer_class(self):
+    def get_predictor_class(self):
         return SimpleAITD
 
     def postprocess_predictions(self, predictions, dataset, input_ids=None, num_beams=1):
@@ -158,7 +157,7 @@ class CausalSeq2SeqMethod(Method):
                 input_idx = math.floor(idx / num_beams)
                 out.append({
                     "sequence": prediction[len(decoded_inputs[input_idx]):].strip(),
-                    "source": decoded_inputs[input_idx].replace("user\n", "").replace("\nmodel\n", "").replace("\nsystem\n", "").replace(self.model_args.prompt_prefix, "").replace("You are a helpful assistant. ", "") 
+                    "source": decoded_inputs[input_idx].replace("user\n", "").replace("\nmodel\n", "").replace("\nsystem\n", "").replace("You are a helpful assistant. ", "") 
                 })
         return out
 

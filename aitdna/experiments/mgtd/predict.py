@@ -1,39 +1,31 @@
-import copy
 import dataclasses
 import argparse
-import itertools
 import json
 import logging
 import os
-import subprocess
 import sys
 
 
-import time
-from enum import Enum
-
-from dotenv import load_dotenv
-load_dotenv()
-
 import torch
-import transformers
-from sacrebleu.metrics import BLEU
 from torch.utils.data.dataloader import DataLoader
 from transformers import (
     AutoConfig,
     AutoTokenizer,
     HfArgumentParser
 )
-from transformers.trainer_utils import is_main_process, PredictionOutput
+from transformers.trainer_utils import PredictionOutput
 
 from aitdna.experiments.mgtd.arguments import *
 from aitdna.experiments.mgtd.methods.base import Method
-from aitdna.experiments.mgtd.methods.generation import CausalSeq2SeqMethod, LikelihoodMethod, \
+from aitdna.experiments.mgtd.methods.generation import LikelihoodMethod, \
 LogRankMethod, BinocularsMethod, \
  MinKMethod, FastDetectGPTMethod, \
  PangramPredictor, GPTZeroPredictor, ModernBERTPredictor
 from aitdna.experiments.mgtd.utils import NumpyEncoder
-from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion, Population
+from aitdna.notions.data_loading import DatasetName, AitdDataset, Notion
+
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(stream=sys.stdout, level=logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -62,16 +54,16 @@ def get_tokenizer_name(config, model_args):
     else:
         return model_args.model_name_or_path
 
-def run_and_evaluate_local(method_definition, trainer, test_dataset, test_dataset_raw, data_args, model_args):
-    model = model_args.model_name_or_path[0]
+def run_and_evaluate_local(method_definition, predictor, data_args, model_args):
     file_name = f"predictions_{model_args.method}_{data_args.dataset_name}_{data_args.detection_level}.json"
     file_path = os.path.join(data_args.metric_output_dir, file_name)
     if os.path.exists(file_path):
         return
     pred_type = f"{model_args.method}_{data_args.dataset_name}"
     logger.info(f"Predicting for {pred_type}")
-    results = trainer.predict(test_dataset, test_dataset_raw)
 
+    test_dataset = method_definition.get_test_dataset(process=False)
+    results = predictor.predict(test_dataset)
     with open(file_path, 'w') as f:
         json.dump(
             dataclasses.asdict(results) if type(
@@ -81,7 +73,7 @@ def run_and_evaluate_local(method_definition, trainer, test_dataset, test_datase
         )
     results = method_definition.evaluate(
         results,
-        test_dataset_raw
+        test_dataset
     )
 
     if data_args.metric_output_dir is not None:
@@ -98,12 +90,8 @@ def run_and_evaluate_local(method_definition, trainer, test_dataset, test_datase
                 json.dump({}, f)
 
 
-def run_prediction(method_definition, trainer, data_args, model_args):
-    test_dataset = method_definition.get_test_dataset()
-
-    test_dataset_raw = method_definition.get_test_dataset(process=False)
-    run_and_evaluate_local(method_definition=method_definition, trainer=trainer, test_dataset=test_dataset,
-            test_dataset_raw=test_dataset_raw, data_args=data_args, model_args=model_args)
+def run_prediction(method_definition, predictor, data_args, model_args):
+    run_and_evaluate_local(method_definition=method_definition, predictor=predictor, data_args=data_args, model_args=model_args)
 
 
 def run_predict_api(model_args, data_args):
@@ -168,7 +156,6 @@ def run_predict(model_args, data_args):
         method_definition: Method = method_class(
             model_args, data_args, config, tokenizer)
         # Set seed before initializing model.
-
         model = None
         if method_definition.predictor_type != "api":
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -178,13 +165,12 @@ def run_predict(model_args, data_args):
             model.config.keys_to_ignore_at_inference = [
                 "decoder_attentions"
             ]
-
         eval_dataset = method_definition.get_test_dataset()
 
         data_collator = method_definition.get_data_collator()
-        trainer_class = method_definition.get_trainer_class()
+        predictor_class = method_definition.get_predictor_class()
 
-        trainer = trainer_class(
+        predictor = predictor_class(
             model=model,
             tokenizer=method_definition.tokenizer,
             method=method_definition,
@@ -192,8 +178,7 @@ def run_predict(model_args, data_args):
             data_args=data_args,
             dataset=eval_dataset
         )
-
-        run_prediction(method_definition, trainer, data_args, model_args)
+        run_prediction(method_definition, predictor, data_args, model_args)
 
 
 def set_envs(cache_dir):

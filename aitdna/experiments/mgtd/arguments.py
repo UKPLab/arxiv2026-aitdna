@@ -30,12 +30,7 @@ class ModelArguments:
     sampling_model_name: Optional[str] = field(default=None)
     scoring_model_name: Optional[str] = field(default=None)
 
-
     method: str = field(default=384)
-
-    task: str = field(default=None)
-    prompt_prefix: str = field(default="")
-    system_prompt: str = field(default="")
 
     # Seq2Seq model specific args
     generation_max_len: int = field(default=128)
@@ -51,7 +46,6 @@ class ModelArguments:
 
     # Tokenization
     max_input_length: int = field(default=1024)
-    max_output_length: int = field(default=1024)
 
     fine_tuned_model: Optional[str] = field(default=None)
 
@@ -65,38 +59,13 @@ class DataPredictionArguments:
     dataset_name: Optional[str] = field(
         default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
     )
-    dataset_config_name: Optional[str] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
-    )
-    dataset_data_files: Optional[dict] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
-    )
-    dataset_filter_dict: Optional[dict] = field(
-        default=None,
-    )
-    dataset_transformations: Optional[List[str]] = field(
-        default=None,
-    )
-    dataset_lowercase_entities: bool = field(default=False)
-    dataset_test_split: str = field(default="test")
     dataset_restrict_to: str = field(default=None)
     dataset_threshold: str = field(default=None)
 
-    test_documents_faiss_index_path: str = field(default=None)
-
     metric_output_dir: Optional[str] = field(default=None)
-
-    prediction_output_file: Optional[str] = field(default=None)
-
-    is_training: bool = field(default=False)
-
-    ivon_s: Optional[str] = field(default=None)
-
-    subsampler: Optional[str] = field(default=None)
-    subsample_size: Optional[int] = field(default=None)
 
     detection_level: Optional[str] = field(default="document", metadata={"help": "Options: document, boundary, sentence, span"})
 
-    evaluation_folder: Optional[str] = field(default=None, metadata={"help": "Folder to store  commercial evaluation data into"})
+    commercial_evaluation_folder: Optional[str] = field(default=None, metadata={"help": "Folder to store  commercial evaluation data into"})
 
     eval_batch_size: Optional[int] = field(default=4)

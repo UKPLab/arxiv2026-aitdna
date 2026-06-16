@@ -1,10 +1,8 @@
 import abc
-from enum import Enum
-import itertools
 
 import torch
-from datasets import Dataset, load_dataset, concatenate_datasets
-from transformers import AutoConfig, DataCollatorWithPadding, EvalPrediction, Trainer
+from datasets import Dataset, concatenate_datasets
+from transformers import AutoConfig, DataCollatorWithPadding, EvalPrediction
 
 from aitdna.experiments.mgtd.mgtd_datasets.DetectionDataset import DetectionDataset
 from aitdna.notions.data_loading.DatasetName import DatasetName
@@ -50,8 +48,9 @@ class Method(abc.ABC):
     def get_data_collator(self):
         return DataCollatorWithPadding(self.tokenizer)
 
-    def get_trainer_class(self):
-        return Trainer
+    @abc.abstractmethod
+    def get_predictor_class(self):
+        raise NotImplementedError()
 
     def postprocess_predictions(self, p, dataset):
         return p
@@ -60,13 +59,10 @@ class Method(abc.ABC):
     def compute_metrics(self, p: EvalPrediction):
         raise NotImplementedError()
 
-    def _get_dataset(self, split, config_name=None, train=False, process=True):
+    def _get_dataset(self, config_name=None, train=False, process=True):
         all_datasets = []
         if config_name is None:
-            for dataset_name, local_split in zip(
-                self.data_args.dataset_name.split(";"), 
-                split.split(";")
-            ):
+            for dataset_name in self.data_args.dataset_name.split(";"):
                 dataset_name = DatasetName[self.data_args.dataset_name]
                 dataset = DetectionDataset(self.data_args.dataset_path,
                                             dataset_name,
@@ -103,4 +99,4 @@ class Method(abc.ABC):
         return dataset
 
     def get_test_dataset(self, process=True):
-        return self._get_dataset(self.data_args.dataset_test_split, train=False, process=process)
+        return self._get_dataset(train=False, process=process)
