@@ -22,13 +22,7 @@ from torch.utils.data.dataloader import DataLoader
 from transformers import (
     AutoConfig,
     AutoTokenizer,
-    HfArgumentParser,
-    TrainingArguments,
-    set_seed,
-    Seq2SeqTrainingArguments,
-    TrainerCallback,
-    TrainerState,
-    TrainerControl,
+    HfArgumentParser
 )
 from transformers.trainer_utils import is_main_process, PredictionOutput
 
@@ -54,25 +48,6 @@ method_classes = [
     # PangramPredictor,
     # GPTZeroPredictor,
 ]
-
-
-def _setup_logging(training_args: TrainingArguments):
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-    )
-    logger.setLevel(logging.INFO if is_main_process(
-        training_args.local_rank) else logging.WARN)
-
-    # Log on each process the small summary:
-    logger.warning(
-        f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
-        + f"distributed training: {training_args.parallel_mode.value == 'distributed'}, 16-bits training: {training_args.fp16}"
-    )
-    # Set the verbosity to info of the Transformers logger (on main process only):
-    if is_main_process(training_args.local_rank):
-        transformers.utils.logging.set_verbosity_info()
-    logger.info("Training/evaluation parameters %s", training_args)
 
 
 def get_config_class(model_args):
@@ -156,27 +131,9 @@ def run_predict_api(model_args, data_args):
                 
 
 
-def run_train_predict(model_args, data_args, training_args):
+def run_predict(model_args, data_args):
     
     logging.info(data_args)
-
-    logging.info(
-        f"My rank is {training_args.local_rank} with {torch.cuda.device_count()} GPUs.")
-    if training_args.local_rank != -1:
-        torch.cuda.set_device(training_args.local_rank)
-
-    if (
-            os.path.exists(training_args.output_dir)
-            and os.listdir(training_args.output_dir)
-            and training_args.do_train
-            and not training_args.overwrite_output_dir
-    ):
-        raise ValueError(
-            f"Output directory ({training_args.output_dir}) already exists and is not empty."
-            "Use --overwrite_output_dir to overcome."
-        )
-
-    _setup_logging(training_args)
 
     method_class = next(
         (m for m in method_classes if m.name == model_args.method), None)
@@ -211,11 +168,11 @@ def run_train_predict(model_args, data_args, training_args):
         method_definition: Method = method_class(
             model_args, data_args, config, tokenizer)
         # Set seed before initializing model.
-        set_seed(training_args.seed)
 
         model = None
         if method_definition.predictor_type != "api":
-            model = method_definition.get_model(config).to(training_args.device)
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            model = method_definition.get_model(config).to(device)
 
         if model is not None:
             model.config.keys_to_ignore_at_inference = [
@@ -229,12 +186,11 @@ def run_train_predict(model_args, data_args, training_args):
 
         trainer = trainer_class(
             model=model,
-            args=training_args,
             tokenizer=method_definition.tokenizer,
             method=method_definition,
             data_collator=data_collator,
             data_args=data_args,
-            eval_dataset=eval_dataset
+            dataset=eval_dataset
         )
 
         run_prediction(method_definition, trainer, data_args, model_args)
@@ -264,9 +220,7 @@ def set_envs(cache_dir):
 
 
 def main(argv=None):
-    training_args_class = Seq2SeqTrainingArguments
-    parser_arguments = (ModelArguments, DataPredictionArguments,
-                        training_args_class)
+    parser_arguments = (ModelArguments, DataPredictionArguments)
     parser = HfArgumentParser(parser_arguments)
 
     argparser = argparse.ArgumentParser(
@@ -290,10 +244,10 @@ def main(argv=None):
         with open(path_to_json) as fp:
             json_args_dict = json.load(fp)
 
-        model_args, data_args, training_args = parser.parse_dict(
+        model_args, data_args = parser.parse_dict(
             json_args_dict, allow_extra_keys=True)
     else:
-        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+        model_args, data_args = parser.parse_args_into_dataclasses()
     
     if evaluate_all_methods:
         methods = [method.name for method in method_classes]
@@ -313,4 +267,4 @@ def main(argv=None):
             data_args.dataset_name = dataset
             data_args.dataset_path = path
             model_args.method = method
-            run_train_predict(model_args, data_args, training_args)
+            run_predict(model_args, data_args)

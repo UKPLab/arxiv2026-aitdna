@@ -55,51 +55,6 @@ class ModelArguments:
 
     fine_tuned_model: Optional[str] = field(default=None)
 
-
-@dataclass
-class DataTrainingArguments:
-    """
-    Arguments pertaining to what data we are going to input our model for training and eval.
-    """
-    dataset_path: str = field()
-
-    dataset_name: Optional[str] = field(
-        default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
-    )
-    dataset_config_name: Optional[str] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
-    )
-    dataset_data_files: Optional[dict] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
-    )
-    dataset_transformations: Optional[List[str]] = field(
-        default=None,
-    )
-    dataset_lowercase_entities: bool = field(default=False)
-    dataset_filter_dict: Optional[dict] = field(
-        default=None,
-    )
-    dataset_train_split: str = field(default="train")
-    dataset_val_split: Optional[str] = field(default="validation")
-    dataset_test_split: Optional[str] = field(default="validation")
-
-    is_training: bool = field(default=True)
-
-    ivon_s: Optional[str] = field(default=None)
-
-    track_influence: bool = field(default=False)
-
-    lr_scheduler: Optional[str] = field(default="cosine")
-
-    detection_level: Optional[str] = field(default="document")
-
-
-    subsampler: Optional[str] = field(default=None)
-    subsample_size: Optional[int] = field(default=None)
-
-    out_hessian_dir: Optional[str] = field(default=None)
-
-
 @dataclass
 class DataPredictionArguments:
     """
@@ -143,3 +98,5 @@ class DataPredictionArguments:
     detection_level: Optional[str] = field(default="document", metadata={"help": "Options: document, boundary, sentence, span"})
 
     evaluation_folder: Optional[str] = field(default=None, metadata={"help": "Folder to store  commercial evaluation data into"})
+
+    eval_batch_size: Optional[int] = field(default=4)

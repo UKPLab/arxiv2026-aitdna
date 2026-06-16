@@ -16,7 +16,7 @@ from gptzero import GPTZeroAPI
 
 from aitdna.experiments.mgtd.methods.base import Method
 from aitdna.experiments.mgtd.methods.preprocessing.generation import MGTDPreprocessor
-from aitdna.experiments.mgtd.trainer.custom_trainer import SimpleTrainer
+from aitdna.experiments.mgtd.simple_aitd import SimpleAITD
 
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
 
@@ -119,7 +119,7 @@ class CausalSeq2SeqMethod(Method):
         return AutoModelForCausalLM
 
     def get_trainer_class(self):
-        return SimpleTrainer
+        return SimpleAITD
 
     def postprocess_predictions(self, predictions, dataset, input_ids=None, num_beams=1):
         out = []

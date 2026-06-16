@@ -102,11 +102,5 @@ class Method(abc.ABC):
             )
         return dataset
 
-    def get_train_dataset(self):
-        return self._get_dataset(self.data_args.dataset_train_split, train=True)
-
     def get_test_dataset(self, process=True):
         return self._get_dataset(self.data_args.dataset_test_split, train=False, process=process)
-
-    def get_validation_dataset(self):
-        return self._get_dataset(self.data_args.dataset_val_split, train=False)
