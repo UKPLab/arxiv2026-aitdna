@@ -114,7 +114,7 @@ class CausalSeq2SeqMethod(Method):
     def get_data_collator(self):
         return DataCollatorForLanguageModeling(self.tokenizer, mlm=False)
 
-    def get_model_class(self, config: PretrainedConfig):
+    def get_model_class(self):
         return AutoModelForCausalLM
 
     def get_predictor_class(self):
@@ -125,7 +125,7 @@ class CausalSeq2SeqMethod(Method):
         # None for RL-training but for eval it's the eval dataset
         if dataset is not None:
             reference_strings = self.tokenizer.batch_decode([sample["labels"] for sample in dataset], skip_special_tokens=True)
-        model_class = self.get_model_class(self.config)
+        model_class = self.get_model_class()
 
         if isinstance(predictions[0][0], str):
             decoded_predictions = []
@@ -245,7 +245,7 @@ class BinocularsMethod(CausalSeq2SeqMethod, MGTDMethod):
 
     def get_model(self, config):
         model = super().get_model(config)
-        model_class = self.get_model_class(config)
+        model_class = self.get_model_class()
         self.reference_model = model_class.from_pretrained(self.model_args.reference_model_name_or_path).to("cuda:0").eval()
         print(f"# Parameters: {model.num_parameters()}")
         return model
@@ -363,7 +363,7 @@ class APIMethod(Method):
     def compute_metrics(self, predictions):
         return predictions
         
-    def get_model_class(self, config: PretrainedConfig):
+    def get_model_class(self):
         return AutoModelForCausalLM
     
     def predict(self, text):
@@ -401,8 +401,10 @@ class ModernBERTPredictor(CausalSeq2SeqMethod, MGTDMethod):
         input_ids = []
         attention_mask = []
 
+        tokenizer_class = self.get_tokenizer_class()
+        tokenizer = tokenizer_class.from_pretrained(self.model_args.tokenizer_name)
         for text in features["input"]:
-            encoded = self.tokenizer(
+            encoded = tokenizer(
                 text,
                 truncation=True,
                 padding="max_length",
@@ -429,8 +431,14 @@ class ModernBERTPredictor(CausalSeq2SeqMethod, MGTDMethod):
         probabilities = torch.nn.functional.softmax(outputs.logits, dim=-1)
         return probabilities[:, 1].tolist()
 
+    def get_tokenizer_class(self):
+        return AutoTokenizer
+    
+    def get_model_class(self):
+        return AutoModelForSequenceClassification
+
     def get_model(self, config):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_args.fine_tuned_model)
-        model = AutoModelForSequenceClassification.from_pretrained(self.model_args.fine_tuned_model).to("cuda:0").eval()
+        print("Config: ", config)
+        model = super().get_model(config)
         print(f"# Parameters of BERT: {model.num_parameters()}")
         return model

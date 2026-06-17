@@ -17,11 +17,11 @@ class Method(abc.ABC):
         self.metrics = []
 
     @abc.abstractmethod
-    def get_model_class(self, config):
+    def get_model_class(self):
         raise NotImplementedError()
 
     def get_model(self, config):
-        model_class = self.get_model_class(config)
+        model_class = self.get_model_class()
         if self.model_args.model_name_or_path is not None:
             model = model_class.from_pretrained(
                 self.model_args.model_name_or_path,

@@ -47,8 +47,6 @@ class ModelArguments:
     # Tokenization
     max_input_length: int = field(default=1024)
 
-    fine_tuned_model: Optional[str] = field(default=None)
-
 @dataclass
 class DataPredictionArguments:
     """

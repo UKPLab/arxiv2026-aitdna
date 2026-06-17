@@ -91,13 +91,7 @@ def create_dataset(dataset_name, generator_name, temperature, max_samples,
                     json.dump(data, f)
                 break
 
-def create_sendetex(argv=None):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", '--dst_root', type=str, default="data/other_datasets/original/sendetex")
-    args = parser.parse_args(argv)
-
-    dataset_path = args.dst_root
-
+def create_sendetex(dataset_path):
     if not os.path.exists(dataset_path):
         os.mkdir(dataset_path)
 
@@ -105,8 +99,8 @@ def create_sendetex(argv=None):
     random.seed(seed)
 
     PERPLEXITY_MODEL = 'meta-llama/Meta-Llama-3-8B'
-    DATASETS = ["euclaise/writingprompts"]
-    MODELS = ["gpt-4o"]
+    DATASETS = ["euclaise/writingprompts", "EdinburghNLP/xsum"]
+    MODELS = ["gpt-4o", "deepseek-chat"]
     gamma = 0.35
     m = {"EdinburghNLP/xsum": 5000, "euclaise/writingprompts": 3500}
     temperature = 0.7
@@ -173,10 +167,10 @@ def process_text(data):
     return edits
 
 
-def process_dataset(src_root, dst_root):
+def process_dataset(orig_ds_root, dst_root):
     if not os.path.exists(dst_root):
         os.mkdir(dst_root)
-    files = sorted(os.listdir(src_root))
+    files = sorted(os.listdir(orig_ds_root))
     for file in files:
         folder_name = file.replace(".json", "")
         dst_folder = os.path.join(dst_root, folder_name)
@@ -184,7 +178,7 @@ def process_dataset(src_root, dst_root):
             os.mkdir(dst_folder)  
         stats_path, notions_path, boundary_path = create_folders_for_analysis(dst_folder)
 
-        with open(os.path.join(src_root, file), "r") as f:
+        with open(os.path.join(orig_ds_root, file), "r") as f:
             data = json.load(f)
         edits = process_text(data)
         with open(os.path.join(dst_folder, "edits.json"), "w") as f:
@@ -208,10 +202,11 @@ def process_dataset(src_root, dst_root):
     
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", '--src_root', type=str, default="data/other_datasets/original/sendetex")
+    parser.add_argument("-s", '--orig_ds_root', type=str, default="data/other_datasets/original/sendetex")
     parser.add_argument("-d", '--dst_root', type=str, default="data/other_datasets/processed/sendetex")
     args = parser.parse_args(argv)
-    SRC_ROOT = args.src_root
-    DST_ROOT = args.dst_root
 
-    process_dataset(SRC_ROOT, DST_ROOT)
+    ORIG_DS_ROOT = args.orig_ds_root
+    DST_DS_ROOT = args.dst_root
+    create_sendetex(ORIG_DS_ROOT)
+    process_dataset(ORIG_DS_ROOT, DST_DS_ROOT)
