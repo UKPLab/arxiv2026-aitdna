@@ -50,8 +50,6 @@ def get_tokenizer_name(config, model_args):
 def run_and_evaluate_local(method_definition, predictor, data_args, model_args):
     file_name = f"predictions_{model_args.method}_{data_args.dataset_name}_{data_args.detection_level}.json"
     file_path = os.path.join(data_args.metric_output_dir, file_name)
-    if os.path.exists(file_path):
-        return
     pred_type = f"{model_args.method}_{data_args.dataset_name}"
     logger.info(f"Predicting for {pred_type}")
 
@@ -158,7 +156,6 @@ def run_predict(model_args, data_args):
 
         predictor = predictor_class(
             model=model,
-            tokenizer=method_definition.tokenizer,
             method=method_definition,
             data_collator=data_collator,
             data_args=data_args,

@@ -33,15 +33,7 @@ class ModelArguments:
     method: str = field(default=384)
 
     # Seq2Seq model specific args
-    generation_max_len: int = field(default=128)
-    generation_beam_size: int = field(default=4)
-    generation_do_sample: bool = field(default=False)
-    generation_length_penalty: float = field(default=1.0)
-    generation_uid_regularization: float = field(default=0.0)
-    generation_no_repeat_ngram_size: int = field(default=3)
-    generation_temperature: float = field(default=0.6)
     num_return_sequences: int = field(default=1)
-    num_sequences_to_keep: int = field(default=1)
     num_labels: int = field(default=None)
 
     # Tokenization

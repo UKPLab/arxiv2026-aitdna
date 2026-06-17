@@ -23,13 +23,11 @@ class SimpleAITD(object):
     def __init__(
         self,
         model=None,
-        tokenizer=None,
         data_collator=None,
         dataset=None,
         method=None,
         data_args=None,
     ):
-        self.tokenizer = tokenizer
         self.data_collator = data_collator
         self.dataset = dataset
         self.method = method

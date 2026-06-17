@@ -437,8 +437,3 @@ class ModernBERTPredictor(CausalSeq2SeqMethod, MGTDMethod):
     def get_model_class(self):
         return AutoModelForSequenceClassification
 
-    def get_model(self, config):
-        print("Config: ", config)
-        model = super().get_model(config)
-        print(f"# Parameters of BERT: {model.num_parameters()}")
-        return model
