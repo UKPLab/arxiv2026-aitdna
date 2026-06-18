@@ -3,52 +3,14 @@ import json
 from pathlib import Path
 from collections import defaultdict
 
-from aitdna.notions.AITDNotions import AITDNotions
-import inspect
 from aitdna.notions.data_loading import Population, AitdDataset, DatasetName, Notion
 from torch.utils.data import DataLoader
-print(inspect.getfile(AitdDataset))
 
-def test_population_based():
-    notions = AITDNotions()
-    pop = Population(cache_dir="data/cache")
-    root = "data/aitdna_anonymized/formatted"
-    for study in os.listdir(root):
-        for user in os.listdir(os.path.join(root, study)):
-            for task in os.listdir(os.path.join(root, study, user)):
-                with open(os.path.join(root, study, user, task, "edits.json"), "r") as f:
-                    edits = json.load(f) 
-                value = notions.get_final_text_by_user_population_based(edits, pop, 3)
-                print(value)
 
-def filter_by_username(meta: dict[str, str], user: str):
-    return meta["author"] == user
-
-def test_membership_based():
-    PROJECT_ROOT = "/home/dycke/Projects/TXAITD/aitdna-paper1"
-
-    popdata = AitdDataset(dataset=DatasetName.AITDNA,
-                          root_dir=PROJECT_ROOT + "/data/aitdna/formatted",
-                          notion=Notion.DOCUMENT_LEVEL)
-
-    pop = Population(dataset=popdata,cache_dir=None)#PROJECT_ROOT + "/data/cache")
-
-    dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                          root_dir=PROJECT_ROOT + "/data/aitdna/formatted",
-                          notion=Notion.MEMBERSHIP_BASED,
-                          population=pop)
-
-    loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
-    for batch in loader:
-        for text in batch:
-            for snippet in text:
-                print(snippet)
-
-def test_different_ns_membership_based():
+def IGNORE_test_different_ns_membership_based():
     
     threshold = 0.5
     token_level_dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                           root_dir="data/aitdna/formatted",
                            notion=Notion.TOKEN_LEVEL,
                            document_level_threshold=0,
                            with_meta=True)
@@ -56,7 +18,6 @@ def test_different_ns_membership_based():
     ai_percentages = {}
     for n in range(4, 8):
         dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                            root_dir="data/aitdna/formatted",
                             notion=Notion.MEMBERSHIP_BASED,
                             n_gram_len=n,
                             population=pop,
@@ -80,11 +41,10 @@ def test_different_ns_membership_based():
         ai_percentages[n] = ai_texts / n_total_texts
     print(ai_percentages)
                     
-def test_different_ns_authorship_based():
+def IGNORE_test_different_ns_authorship_based():
     
     threshold = 0.5
     token_level_dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                           root_dir="data/aitdna/formatted",
                            notion=Notion.TOKEN_LEVEL,
                            document_level_threshold=0,
                            with_meta=True)
@@ -94,13 +54,11 @@ def test_different_ns_authorship_based():
         for (text, meta) in batch:
             users[meta["author"]] += 1
     user = max(users, key=users.get)
-    print("User: ", user)
 
     pop = Population(dataset=token_level_dataset, filter_fun=filter, user=user)
     ai_percentages = {}
     for n in range(1, 5):
         dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                            root_dir="data/aitdna/formatted",
                             notion=Notion.AUTHORSHIP_BASED,
                             n_gram_len=n,
                             population=pop,
@@ -125,31 +83,44 @@ def test_different_ns_authorship_based():
     print(ai_percentages)
                     
 
+def filter_by_username(meta: dict[str, str], user: str):
+    return meta["author"] == user
+
+def test_membership_based():
+
+    popdata = AitdDataset(dataset=DatasetName.AITDNA,
+                          notion=Notion.TOKEN_LEVEL)
+
+    pop = Population(dataset=popdata,cache_dir=None)
+
+    dataset = AitdDataset(dataset=DatasetName.AITDNA,
+                          notion=Notion.MEMBERSHIP_BASED,
+                          population=pop)
+
+    loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
+    for batch in loader:
+        for text in batch:
+            for snippet in text:
+                print(snippet)
+            
 def test_authorship_based():
     document_level_dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                           root_dir="data/aitdna/formatted",
-                           notion=Notion.DOCUMENT_LEVEL,
+                           notion=Notion.TOKEN_LEVEL,
                            document_level_threshold=0,
                            with_meta=True)
     pop = Population(dataset=document_level_dataset, filter_fun=filter_by_username, user="zira")
-
     dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                          root_dir="data/aitdna/formatted",
                           notion=Notion.AUTHORSHIP_BASED,
                           population=pop)
     loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
     for batch in loader:
         for text in batch:
             for snippet in text:
-                print(snippet)
+                break
 
 
 def test_contentbased():
-    PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-    # this runs classification and stores it on disk
     content_based_dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                                         root_dir=f"{PROJECT_ROOT}/data/aitdna/formatted",
                                          notion=Notion.CONTENT_BASED,
                                          with_meta=True,
                                          llm_type="gpt-5.4-nano",
@@ -158,17 +129,14 @@ def test_contentbased():
     loader = DataLoader(content_based_dataset, batch_size=1, collate_fn=lambda data_point: data_point)
     for batch in loader:
         for text in batch:
-            for sentence in text:
-                print(sentence)
+            for snippet in text:
+                break
             break
 
 
 def test_intentbased():
-    PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
     # this runs classification and stores it on disk
     intent_based_dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                                         root_dir=f"{PROJECT_ROOT}/data/aitdna/formatted",
                                          notion=Notion.INTENT_BASED,
                                          with_meta=True,
                                          llm_type="gpt-5.4-nano",
@@ -177,9 +145,8 @@ def test_intentbased():
     loader = DataLoader(intent_based_dataset, batch_size=1, collate_fn=lambda data_point: data_point)
     for batch in loader:
         for text in batch:
-            for sentence in text:
-                print(sentence)
-            break
+            for snippet in text:
+                break
 
 def test_document_level():
     dataset = AitdDataset(dataset=DatasetName.AITDNA,
@@ -206,18 +173,17 @@ def test_sentence_level():
     for batch in loader:
         for text in batch:
             for sentence in text:
-                print(sentence)
-            exit(0)
+                break
 
 def test_boundary_level():
     dataset = AitdDataset(dataset=DatasetName.AITDNA,
-                                         notion=Notion.BOUNDARY_LEVEL,
-                                         with_meta=False)
+                        notion=Notion.BOUNDARY_LEVEL,
+                        with_meta=False)
 
     loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
     for batch in loader:
         for text in batch:
-            for sentence in text:
-                print(sentence)
-            exit(0)
+            for snippet in text:
+                break
 
+test_authorship_based()

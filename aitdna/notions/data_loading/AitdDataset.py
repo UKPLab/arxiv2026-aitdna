@@ -32,7 +32,7 @@ class AitdDataset(Dataset):
         data = []
         meta = []
         if dataset == DatasetName.AITDNA:
-                data, meta = self.extract_data_aitdna_hf(notion)
+                data, meta = self.extract_data_aitdna_hf(notion, **kwargs)
         elif dataset == DatasetName.AITDNA_SYNTHETIC:
             for model in os.listdir(root_dir):
                 for task in os.listdir(os.path.join(root_dir, model)):
@@ -165,7 +165,6 @@ class AitdDataset(Dataset):
 
                 llm_type = kwargs.get("llm_type", "gpt-5.4-nano")
                 strictness_level = kwargs.get("strictness_level", 3)
-                task = kwargs.get("task")[len("Task X.Y: "):]
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and strictness_level == 3:
@@ -182,6 +181,7 @@ class AitdDataset(Dataset):
                 meta = []
                 for dp in sentence_ds:
                     sentences = dp["data"]
+                    task = dp["metadata"]["task"]
                     labels = notions.get_content_based_labels(sentences, llm_type, task)
                     for i, s in enumerate(sentences):
                         if s["author"] in ["Bot", "Mixed"]:
@@ -197,7 +197,6 @@ class AitdDataset(Dataset):
             case Notion.INTENT_BASED:
                 llm_type = kwargs.get("llm_type", "gpt-5.4-nano")
                 looseness_level = kwargs.get("looseness_level", 1)
-                task = kwargs.get("task")[len("Task X.Y: "):]
 
                 notions = AITDNotions()
                 if llm_type == "gpt-5.4-nano" and looseness_level == 1:
@@ -214,6 +213,7 @@ class AitdDataset(Dataset):
                 meta = []
                 for dp in sentence_ds:
                     sentences = dp["data"]
+                    task = dp["metadata"]["task"]
                     labels = notions.get_intent_based_labels(sentences, llm_type, task)
                     for i, s in enumerate(sentences):
                         if s["author"] in ["Bot", "Mixed"]:
@@ -255,6 +255,8 @@ class AitdDataset(Dataset):
                 return data, meta
 
             case Notion.AUTHORSHIP_BASED:
+                n_gram_len = kwargs.get("n_gram_len", 2)
+                notions = AITDNotions()
                 population = kwargs.get("population", None)
                 if not population:
                     raise ValueError("Population not found!")

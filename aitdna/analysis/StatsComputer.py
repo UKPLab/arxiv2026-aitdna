@@ -19,7 +19,7 @@ nltk.data.path.append("/storage/ukp/work/sakharova/nltk/models")
 NLP = spacy.load("en_core_web_lg")
 
 class StatsComputer():
-    def __init__(self, dataset_name: DatasetName, dataset_root: str):
+    def __init__(self, dataset_name: DatasetName, dataset_root: str | None = None):
         self.dataset_name = dataset_name
         self.dataset_root = dataset_root
 
@@ -212,8 +212,8 @@ class StatsComputer():
         Returns:
             int: # data points in dataset
         """
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.DOCUMENT_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.DOCUMENT_LEVEL)
         return len(dataset)
 
 
@@ -226,8 +226,8 @@ class StatsComputer():
             "avg_n_tokens": 0
         }
         total_n_tokens = 0
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.TOKEN_LEVEL)   
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.TOKEN_LEVEL)   
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         
         for batch in loader:
@@ -247,8 +247,8 @@ class StatsComputer():
         return texts
 
     def get_percentage_human_texts(self) -> float:
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SPAN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SPAN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
 
         n_total = len(dataset)
@@ -265,8 +265,8 @@ class StatsComputer():
         return n_human / n_total
 
     def get_avg_ai_token_ratio_per_text(self) -> tuple[float,float]:
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.TOKEN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.TOKEN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
 
         ai_ratios = [
@@ -281,16 +281,16 @@ class StatsComputer():
         """
         Generates trees for each sentence in text
         """
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SENTENCE_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SENTENCE_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
 
         return self.get_linguistic_trees(loader)
 
 
     def get_linguistic_stats_all(self):
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SPAN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SPAN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         all_stats = []
         for batch in loader:
@@ -302,8 +302,8 @@ class StatsComputer():
 
     def get_avg_n_boundaries_sentence_level(self):
         n_boundaries = 0
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SENTENCE_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SENTENCE_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         for batch in loader:
             for text in batch:
@@ -320,8 +320,8 @@ class StatsComputer():
             "User": 0,
             "Bot": 0
         }
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SPAN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SPAN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         for batch in loader:
             for text in batch:
@@ -347,8 +347,8 @@ class StatsComputer():
             "User": 0,
             "Bot": 0
         }
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SPAN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SPAN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         for batch in loader:
             for text in batch:
@@ -366,8 +366,8 @@ class StatsComputer():
 
     def get_avg_n_boundaries_span_level(self):
         n_boundaries = 0
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.SPAN_LEVEL)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.SPAN_LEVEL)
         loader = DataLoader(dataset, batch_size=1, collate_fn=lambda data_point: data_point)
         for batch in loader:
             for text in batch:
@@ -379,8 +379,8 @@ class StatsComputer():
         ai_percentages = []
         user_percentages = []
 
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.TOKEN_LEVEL, with_meta=self.dataset_name == DatasetName.AITDNA and no_human_only)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.TOKEN_LEVEL, with_meta=self.dataset_name == DatasetName.AITDNA and no_human_only)
 
         # discard human-only condition for analysis
         if self.dataset_name == DatasetName.AITDNA and no_human_only:
@@ -412,8 +412,8 @@ class StatsComputer():
         ai_percentages = []
         user_percentages = []
 
-        dataset = AitdDataset(self.dataset_name, self.dataset_root,
-                              Notion.TOKEN_LEVEL, with_meta=self.dataset_name == DatasetName.AITDNA and no_human_only)
+        dataset = AitdDataset(dataset=self.dataset_name, root_dir=self.dataset_root,
+                              notion=Notion.TOKEN_LEVEL, with_meta=self.dataset_name == DatasetName.AITDNA and no_human_only)
 
         # discard human-only condition for analysis
         if self.dataset_name == DatasetName.AITDNA and no_human_only:
