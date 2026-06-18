@@ -52,5 +52,3 @@ jobs:
       - name: Run tests
         run: |
           pytest -v -l --tb=short --maxfail=1 tests/
-          coverage xml
-          coverage html
