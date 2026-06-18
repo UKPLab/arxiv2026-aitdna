@@ -30,7 +30,7 @@ def read_requirements(path):
 
 
 setup(
-    name="arxiv2026_aitdna",
+    name="aitdna",
     url="https://github.com/UKPLab/arxiv2026-aitdna/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -38,7 +38,7 @@ setup(
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
     entry_points={
-        "console_scripts": ["arxiv2026_aitdna = arxiv2026_aitdna.__main__:main"]
+        "console_scripts": ["aitdna = aitdna.__main__:main"]
     },
     extras_require={"test": read_requirements("requirements-dev.txt")},
 )
