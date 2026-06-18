@@ -8,7 +8,7 @@ theme:
 plugins:
   - search
   - mkdocstrings:
-      project_name: arxiv2026_aitdna
+      project_name: aitdna
       handlers:
         python:
           options:
