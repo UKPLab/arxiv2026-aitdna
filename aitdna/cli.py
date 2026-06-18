@@ -4,7 +4,7 @@ import inspect
 import dotenv
 import logging
 
-from .install import install_prerequisits
+from .install import install_prerequisites
 from .datasets import (coauthor_create_dataset, boundary_detection_create_dataset, detectrl_create_dataset,
                        mixset_create_dataset, sendetex_create_dataset)
 from .datasets.aitdna_dataset.postprocessing import run_dataset_anonymization, run_synthetic_data_generation
@@ -77,7 +77,7 @@ def main():  # pragma: no cover
 # ####
 
 def install(argv=None):
-    install_prerequisits()
+    install_prerequisites()
 
 
 def create_dataset(argv=None):

@@ -2,7 +2,7 @@ import nltk
 import spacy
 
 
-def install_prerequisits():
+def install_prerequisites():
     # nltk
     nltk.download('punkt_tab')
     nltk.download('wordnet')
