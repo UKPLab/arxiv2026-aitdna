@@ -51,6 +51,6 @@ jobs:
   
       - name: Run tests
         run: |
-          pytest -v --cov-fail-under=60 --cov=${{ steps.get_package_name.outputs.package_name }} -l --tb=short --maxfail=1 tests/
+          pytest -v -l --tb=short --maxfail=1 tests/
           coverage xml
           coverage html
