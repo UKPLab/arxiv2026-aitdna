@@ -180,15 +180,29 @@
                         </span>
                     </div>
                     <div class="care-editor-text" id="careEditorText">
-
                     </div>
+                    <div class="care-query-popup" id="careQueryPopup">
+                      <span class="care-query-text" id="careQueryText"></span>
+                      <span class="care-query-send" aria-hidden="true">
+                        <i class="fa fa-paper-plane"></i>
+                      </span>
+                    </div>
+
                 </div>
-                <div class="care-sidebar-pane">
+                <div class="care-sidebar-pane" id="careSidebarPane">
                     <div class="care-sidebar-header">
                         <span class="care-sidebar-title">🤖 LLM Response</span>
                     </div>
                     <div class="care-response-box" id="careResponseBox">
                         <span class="care-response-placeholder" id="careResponsePlaceholder">The model answer will be displayed here</span>
+                    </div>
+                    <div class="care-accept-reject">
+                      <span class="care-accept-reject-buttons" id="careAcceptButton">
+                        <i class="fa fa-check"></i>
+                      </span>
+                      <span class="care-accept-reject-buttons" id="careRejectButton">
+                        <i class="fa fa-times"></i>
+                      </span>
                     </div>
                 </div>
             </div>
@@ -236,21 +250,34 @@
         { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
         { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
         { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
-        // { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
-        // nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
-        // requestType: "editor", createdAt: 3.4, temperature: 1 },
-        // { requestId: 5, accepted: "t",
-        // response: " popular object detection framework.",
-        // createdAt: 12.3, success: "t" },
+        { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
+        nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
+        requestType: "editor", createdAt: 3.4, temperature: 1 },
+        { requestId: 5, accepted: "t",
+        response: " popular object detection framework.",
+        createdAt: 12.3, success: "t" },
         { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
         { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
     ];
 
+    // let interactions;
+    // $.getJSON("sessions/session_1/generalate/Task 1.1: Explanatory Writing Human-only/edits.json", function (data) {
+    //   console.log("Data: ", data);
+    //   interactions = data;
+    // })
+  
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
+    const queryPopup = document.getElementById("careQueryPopup");
+    const queryText = document.getElementById("careQueryText");
+    const responseBox = document.getElementById("careResponseBox");
+    const sidebarPane = document.getElementById("careSidebarPane");
+    const acceptBtn = document.getElementById("careAcceptButton");
+    const rejectBtn = document.getElementById("careRejectButton");
 
     let isPlaying = false;
     let docText = "";
+    let timeouts = [];
 
     function renderEditor(highlightRange) {
         let html = escapeHtml(docText);
@@ -267,19 +294,50 @@
     function escapeHtml(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
+
+    function typeIntoPopup(text, idx) {
+      queryText.textContent = text.slice(0, idx);
+      setTimeout(() => typeIntoPopup(text, idx+1), 20);
+    }
+  
     function applyEvent(ev, idx) {
         if (ev.operationType === "insert") {
             docText = docText.slice(0, ev.offset) + ev.text + docText.slice(ev.offset);
             const cls = ev.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
             renderEditor({ start: ev.offset, end: ev.offset + ev.text.length, cls });
-            setTimeout(() => renderEditor(), 500);
+            setTimeout(() => renderEditor(), 5000);
+
         } else if (ev.operationType === "delete") {
             const end = ev.offset + ev.span;
             renderEditor({ start: ev.offset, end, cls: 'care-fade-out' });
             docText = docText.slice(0, ev.offset) + docText.slice(end);
             setTimeout(() => {
                 renderEditor();
-            }, 350);
+            }, 3500);
+
+        } else if (ev.query !== undefined) {
+          queryPopup.style.display = "flex";
+          queryText.textContent = "";
+          typeIntoPopup(ev.query, 0);
+
+        } else if (ev.requestId !== undefined) {
+          // queryPopup.style.display = "none";
+          const accepted = ev.accepted === "t";
+          responseBox.innerHTML = "";
+
+          const respSpan = document.createElement("span");
+          respSpan.textContent = ev.response;
+          responseBox.appendChild(respSpan);
+
+          acceptBtn.classList.remove("is-active-accept");
+          rejectBtn.classList.remove("is-active-reject");
+
+          if (accepted) {
+            acceptBtn.classList.add("is-active-accept");
+          } else {
+            rejectBtn.classList.add("is-active-reject");
+          }
+          responseBox.classList.add(accepted ? 'care-accepted' : 'care-rejected');
         }
     }
 
@@ -287,13 +345,44 @@
         isPlaying = false;
     }
 
+    function scaledDelay(delta) {
+      return delta * 200;
+    }
+
     function scheduleAll() {
-        interactions.forEach((ev, i) => {
-            applyEvent(ev, i);
-            if (i === interactions.length - 1) {
-                finishPlayback();
-            }
-        })
+      resetReplay();
+      let cumulativeMs = 0;
+      let prevCreatedAt = interactions[0].createdAt;
+
+      interactions.forEach((ev, i) => {
+        const delta = ev.createdAt - prevCreatedAt;
+        cumulativeMs += scaledDelay(delta);
+        prevCreatedAt = ev.createdAt;
+
+        const t = setTimeout(() => {
+          applyEvent(ev, i);
+          timeouts.push(t);
+          if (i === interactions.length - 1) {
+              finishPlayback();
+          }
+        }, cumulativeMs);
+        timeouts.push(t);
+      })
+    }
+
+    function clearAllTimeouts() {
+      timeouts.forEach(t => clearTimeout(t));
+      timeouts = [];
+    }
+
+    function resetReplay() {
+    //   clearAllTimeouts();
+    //   docText = "";
+    //   renderEditor();
+    //   responseBox.innerHTML = "";
+    //   queryPopup.style.display = "none";
+    //   queryPopup.textContent = "";
+    //   responseBox.classList.remove("care-accepted", "care-rejected");
     }
 
     playBtn.addEventListener("click", () => {
@@ -395,6 +484,26 @@
 
     }
 
+    .care-query-popup {
+      display: none;
+      align-items: center;
+      z-index: 999;
+      max-width: 300px;
+      position: absolute;
+      background: #fff;
+      border: 1.5px solid var(--care-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 14px rgba(47,111,237,0.18);
+      gap: 0.5rem;
+      padding: 0.3rem 0.7rem;
+    }
+
+    .care-query-text {
+      overflow-x: hidden;
+      white-space: nowrap;
+    }
+
     .care-sidebar-pane {
         flex: 1 1 35%;
         background: #fdfdfd;
@@ -422,4 +531,39 @@
         font-size: 0.8rem;
     }
     .care-response-placeholder { color: var(--care-muted); }
+
+    .care-response-box.care-accepted { background: #eafbf0; border-color: #bfe6cc; }
+    .care-response-box.care-rejected { background: #fdeeee; border-color: #f0c4c4; }
+
+    .care-accept-reject {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0rem;
+}
+
+.care-accept-reject-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  background: #f3f3f3;
+  border: 1px solid #d6d4d4;
+  border-radius: 5px;
+  padding: 0.4rem 0;
+  cursor: pointer;
+  color: #7e7e7e;
+}
+
+.is-active-accept {
+  background: #3fae5c;
+  border-color: #2f8a46;
+  color: #fff;
+}
+
+.is-active-reject {
+  background: #d64545;
+  border-color: #a32626;
+  color: #fff;
+}
   </style>
