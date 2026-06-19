@@ -258,34 +258,34 @@
 <script>
 (function () { 
 
-    let interactions = [
-        { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
-        { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-        { offset: 8, operationType: "insert", span: 37, text: "a popular object detection framework.", createdAt: 1.4, user: "User" },
-        { id: 5, query: "rephrase this sentence about object detection", model: "gpt-5.2",
-        nlpService: "text_revision", selectionIndex: 8, selectionLength: 26,
-        requestType: "editor", createdAt: 3.4, temperature: 1 },
-      
-        { requestId: 5, accepted: "t",
-        response: " a very popular object detection",
-        createdAt: 12.3, success: "t" },
-        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
-        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
-    ];
-
     // let interactions = [
     //     { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
     //     { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-    //     { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
-    //     { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
-    //     nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
+    //     { offset: 8, operationType: "insert", span: 37, text: "a popular object detection framework.", createdAt: 1.4, user: "User" },
+    //     { id: 5, query: "rephrase this sentence about object detection", model: "gpt-5.2",
+    //     nlpService: "text_revision", selectionIndex: 8, selectionLength: 26,
     //     requestType: "editor", createdAt: 3.4, temperature: 1 },
+      
     //     { requestId: 5, accepted: "t",
-    //     response: " popular object detection framework.",
+    //     response: " a very popular object detection",
     //     createdAt: 12.3, success: "t" },
     //     { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
     //     { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
     // ];
+
+    let interactions = [
+        { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
+        { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
+        { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
+        { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
+        nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
+        requestType: "editor", createdAt: 3.4, temperature: 1 },
+        { requestId: 5, accepted: "t",
+        response: " popular object detection framework.",
+        createdAt: 12.3, success: "t" },
+        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
+        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
+    ];
 
     // $.getJSON("sessions/session_1/generalate/Task 1.1: Explanatory Writing Human-only/edits.json", function (data) {
     //   console.log("Data: ", data);
@@ -344,9 +344,7 @@
     function constructAnswerText(rsp) {
       const req = pendingQueries[rsp.requestId];
       let text = req.textContent;
-      if (req.nlpService === "text_revision") {
-        return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
-      }
+      return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
     }
   
     function applyEvent(ev, idx) {
