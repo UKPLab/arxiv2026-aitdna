@@ -157,7 +157,10 @@
             <!--Topbar-->
             <div class="care-toolbar">
                 <div class="care-toolbar-left">
-                    <span class="care-badge id="care-logo">CARE</span>
+                    <span class="care-logo">
+                      <img class="care-logo-img"
+                        alt="" src="static/images/care_logo.svg" title="">
+                    </span>
                     <button class="care-play-btn" id="carePlayBtn">
                         <i class="fas fa-play"></i> Play
                     </button>
@@ -473,6 +476,11 @@
         text-align: center;
     }
 
+    .care-logo-img {
+      width: 50px;
+      height: auto;
+    }
+
     .care-badge {
         font-size: 0.75rem;
         font-weight: 600;
@@ -551,38 +559,38 @@
     .care-response-box.care-rejected { background: #fdeeee; border-color: #f0c4c4; }
 
     .care-accept-reject {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0rem;
-}
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0rem;
+    }
 
-.care-accept-reject-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 30px;
-  background: #f3f3f3;
-  border: 1px solid #d6d4d4;
-  border-radius: 5px;
-  padding: 0.4rem 0;
-  cursor: pointer;
-  color: #7e7e7e;
-}
+    .care-accept-reject-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 30px;
+      background: #f3f3f3;
+      border: 1px solid #d6d4d4;
+      border-radius: 5px;
+      padding: 0.4rem 0;
+      cursor: pointer;
+      color: #7e7e7e;
+    }
 
-.is-active-accept {
-  background: #3fae5c;
-  border-color: #2f8a46;
-  color: #fff;
-}
+    .is-active-accept {
+      background: #3fae5c;
+      border-color: #2f8a46;
+      color: #fff;
+    }
 
-.is-active-reject {
-  background: #d64545;
-  border-color: #a32626;
-  color: #fff;
-}
+    .is-active-reject {
+      background: #d64545;
+      border-color: #a32626;
+      color: #fff;
+    }
 
-.care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
-.care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
+    .care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
+    .care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
 
 </style>
