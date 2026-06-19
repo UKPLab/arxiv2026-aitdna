@@ -159,7 +159,7 @@
                 <div class="care-toolbar-left">
                     <span class="care-badge id="care-logo">CARE</span>
                     <button class="care-play-btn" id="carePlayBtn">
-                        <i class="fas fa-play"></i>
+                        <i class="fas fa-play"></i> Play
                     </button>
                 </div>
                 <div class="care-toolbar-middle">
@@ -246,7 +246,7 @@
 
 <script>
 (function () { 
-    const interactions = [
+    let interactions = [
         { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
         { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
         { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
@@ -260,7 +260,6 @@
         { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
     ];
 
-    // let interactions;
     // $.getJSON("sessions/session_1/generalate/Task 1.1: Explanatory Writing Human-only/edits.json", function (data) {
     //   console.log("Data: ", data);
     //   interactions = data;
@@ -274,6 +273,8 @@
     const sidebarPane = document.getElementById("careSidebarPane");
     const acceptBtn = document.getElementById("careAcceptButton");
     const rejectBtn = document.getElementById("careRejectButton");
+    const timer = document.getElementById("careTimer");
+    const wordCount = document.getElementById("careWordCount");
 
     let isPlaying = false;
     let docText = "";
@@ -289,10 +290,22 @@
         html = before + '<span class="' + cls + '">' + mid + '</span>' + after;
         }
         editorText.innerHTML = html;
+        updateWordCount();
     }
 
     function escapeHtml(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateWordCount() {
+      const words = docText.trim().split(/\s+/).filter(Boolean).length;
+      wordCount.textContent = 'Word count: ' + words;
+    }
+
+    function formatTimer(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return m + ":" + s;
     }
 
     function typeIntoPopup(text, idx) {
@@ -338,6 +351,7 @@
             rejectBtn.classList.add("is-active-reject");
           }
           responseBox.classList.add(accepted ? 'care-accepted' : 'care-rejected');
+
         }
     }
 
@@ -361,6 +375,7 @@
 
         const t = setTimeout(() => {
           applyEvent(ev, i);
+          timer.textContent = formatTimer(ev.createdAt);
           timeouts.push(t);
           if (i === interactions.length - 1) {
               finishPlayback();
@@ -566,4 +581,8 @@
   border-color: #a32626;
   color: #fff;
 }
-  </style>
+
+.care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
+.care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
+
+</style>
