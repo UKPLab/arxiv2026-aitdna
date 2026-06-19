@@ -55,22 +55,25 @@
             <div class="is-size-5 publication-authors">
               <!-- Paper authors -->
               <span class="author-block">
-                <a href="https://scholar.google.com/citations?user=UxhfZPUAAAAJ&hl=de" target="_blank">Nils Dycke</a><sup>*</sup>,</span>
+                <a href="https://scholar.google.com/citations?user=UxhfZPUAAAAJ&hl=de" target="_blank">Nils Dycke</a><sup>*1,2</sup>,</span>
                 <span class="author-block">
-                  <a href="https://scholar.google.com/citations?user=LhIW9GgAAAAJ&hl=en" target="_blank">Marina Sakharova</a><sup>*</sup>,</span>
+                  <a href="https://scholar.google.com/citations?user=LhIW9GgAAAAJ&hl=en" target="_blank">Marina Sakharova</a><sup>*1,2,3</sup>,</span>
                   <span class="author-block">
-                    <a href="https://scholar.google.com/citations?user=n6wJfqUAAAAJ&hl=en" target="_blank">Nico Daheim</a>,
+                    <a href="https://scholar.google.com/citations?user=n6wJfqUAAAAJ&hl=en" target="_blank">Nico Daheim</a><sup>1,2</sup>,
                   </span>
                   <span class="author-block">
-                    <a href="https://scholar.google.com/citations?user=t3A39e8AAAAJ&hl=en" target="_blank">Iryna Gurevych</a>
+                    <a href="https://scholar.google.com/citations?user=t3A39e8AAAAJ&hl=en" target="_blank">Iryna Gurevych</a><sup>1,2,3</sup>
                   </span>
                   </div>
 
                   <div class="is-size-5 publication-authors">
-                    <span class="author-block">UKP Lab & Zuse School ELIZA<br>Arxiv Preprint 2026</span>
+                    <span class="author-block">Arxiv Preprint 2026</span>
+
+                    <span class="eql-cntrb"><small><br><sup>1</sup>Ubiquitous Knowledge Processing Lab (UKP Lab), TU Darmstadt</small></span>
+                    <span class="eql-cntrb"><small><br><sup>2</sup>National Research Center for Applied Cybersecurity ATHENE, Germany</small></span>
+                    <span class="eql-cntrb"><small><br><sup>3</sup>Zuse School ELIZA</small></span>
                     <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span>
                   </div>
-
                   <div class="column has-text-centered">
                     <div class="publication-links">
                          <!-- Arxiv PDF link -->
@@ -120,6 +123,11 @@
           </div>
         </div>
       </div>
+      <!-- <div class="container is-max-desktop">
+        <p align="center">
+          <img src='static/images/aitdna_logo.png' width='200'/>
+        </p>
+      </div> -->
     </div>
   </div>
 </section>
@@ -158,8 +166,7 @@
             <div class="care-toolbar">
                 <div class="care-toolbar-left">
                     <span class="care-logo">
-                      <img class="care-logo-img"
-                        alt="" src="static/images/care_logo.svg" title="">
+                      <img class="care-logo-img"src="static/images/care_logo.svg">
                     </span>
                     <button class="care-play-btn" id="carePlayBtn">
                         <i class="fas fa-play"></i> Play
@@ -180,6 +187,7 @@
                             <span class="care-icon-btn"><b>B</b></span>
                             <span class="care-icon-btn"><i>I</i></span>
                             <span class="care-icon-btn care-underline">U</span>
+                            <span class="care-icon-btn care-line-through">S</span>
                         </span>
                     </div>
                     <div class="care-editor-text" id="careEditorText">
@@ -249,19 +257,35 @@
 
 <script>
 (function () { 
+
     let interactions = [
         { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
         { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-        { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
-        { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
-        nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
+        { offset: 8, operationType: "insert", span: 37, text: "a popular object detection framework.", createdAt: 1.4, user: "User" },
+        { id: 5, query: "rephrase this sentence about object detection", model: "gpt-5.2",
+        nlpService: "text_revision", selectionIndex: 8, selectionLength: 26,
         requestType: "editor", createdAt: 3.4, temperature: 1 },
+      
         { requestId: 5, accepted: "t",
-        response: " popular object detection framework.",
+        response: " a very popular object detection",
         createdAt: 12.3, success: "t" },
         { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
         { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
     ];
+
+    // let interactions = [
+    //     { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
+    //     { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
+    //     { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
+    //     { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
+    //     nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
+    //     requestType: "editor", createdAt: 3.4, temperature: 1 },
+    //     { requestId: 5, accepted: "t",
+    //     response: " popular object detection framework.",
+    //     createdAt: 12.3, success: "t" },
+    //     { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
+    //     { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
+    // ];
 
     // $.getJSON("sessions/session_1/generalate/Task 1.1: Explanatory Writing Human-only/edits.json", function (data) {
     //   console.log("Data: ", data);
@@ -282,6 +306,7 @@
     let isPlaying = false;
     let docText = "";
     let timeouts = [];
+    let pendingQueries = {};
 
     function renderEditor(highlightRange) {
         let html = escapeHtml(docText);
@@ -315,6 +340,14 @@
       queryText.textContent = text.slice(0, idx);
       setTimeout(() => typeIntoPopup(text, idx+1), 20);
     }
+
+    function constructAnswerText(rsp) {
+      const req = pendingQueries[rsp.requestId];
+      let text = req.textContent;
+      if (req.nlpService === "text_revision") {
+        return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
+      }
+    }
   
     function applyEvent(ev, idx) {
         if (ev.operationType === "insert") {
@@ -332,6 +365,9 @@
             }, 3500);
 
         } else if (ev.query !== undefined) {
+          ev.textContent = editorText.textContent;
+          pendingQueries[ev.id] = ev;
+
           queryPopup.style.display = "flex";
           queryText.textContent = "";
           typeIntoPopup(ev.query, 0);
@@ -342,7 +378,8 @@
           responseBox.innerHTML = "";
 
           const respSpan = document.createElement("span");
-          respSpan.textContent = ev.response;
+          // respSpan.textContent = ev.response;
+          respSpan.textContent = constructAnswerText(ev);
           responseBox.appendChild(respSpan);
 
           acceptBtn.classList.remove("is-active-accept");
@@ -494,6 +531,14 @@
     .care-panes {
         display: flex;
         min-height: 500px;
+    }
+
+    .care-underline {
+      text-decoration: underline;
+    }
+
+    .care-line-through {
+      text-decoration: line-through;
     }
 
     .care-editor-pane {

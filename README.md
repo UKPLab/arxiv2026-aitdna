@@ -1,5 +1,5 @@
 <p  align="center">
-  <img src='logo.png' width='200'>
+  <img src='static/images/aitdna_logo.png' width='200'>
 </p>
 
 # ’Your AI Text is not Mine’: Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions
