@@ -308,16 +308,20 @@
     let timeouts = [];
     let pendingQueries = {};
 
-    function renderEditor(highlightRange) {
-        let html = escapeHtml(docText);
+
+    function compute_new_html(text, highlightRange) {
+      let html = escapeHtml(text);
         if (highlightRange) {
         const { start, end, cls } = highlightRange;
-        const before = escapeHtml(docText.slice(0, start));
-        const mid = escapeHtml(docText.slice(start, end));
-        const after = escapeHtml(docText.slice(end));
+        const before = escapeHtml(text.slice(0, start));
+        const mid = escapeHtml(text.slice(start, end));
+        const after = escapeHtml(text.slice(end));
         html = before + '<span class="' + cls + '">' + mid + '</span>' + after;
         }
-        editorText.innerHTML = html;
+      return html;
+    }
+    function renderEditor(highlightRange) {
+        editorText.innerHTML = compute_new_html(docText, highlightRange);
         updateWordCount();
     }
 
@@ -341,8 +345,7 @@
       setTimeout(() => typeIntoPopup(text, idx+1), 20);
     }
 
-    function constructAnswerText(rsp) {
-      const req = pendingQueries[rsp.requestId];
+    function constructAnswerText(rsp, req) {
       let text = req.textContent;
       return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
     }
@@ -371,13 +374,18 @@
           typeIntoPopup(ev.query, 0);
 
         } else if (ev.requestId !== undefined) {
-          // queryPopup.style.display = "none";
+          queryPopup.style.display = "none";
           const accepted = ev.accepted === "t";
           responseBox.innerHTML = "";
 
           const respSpan = document.createElement("span");
-          // respSpan.textContent = ev.response;
-          respSpan.textContent = constructAnswerText(ev);
+          const req = pendingQueries[ev.requestId];
+          const answerText = constructAnswerText(ev, req);
+          const cls = accepted ? "care-answer-accepted": "care-answer-rejected";
+          console.log("Answer: ", answerText);
+          const html =  compute_new_html(answerText, {start: req.selectionIndex, end: req.selectionIndex + ev.response.length, cls});
+          console.log("HTML: ", html);
+          respSpan.innerHTML = html;
           responseBox.appendChild(respSpan);
 
           acceptBtn.classList.remove("is-active-accept");
@@ -635,5 +643,8 @@
 
     .care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
     .care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
+
+    .care-answer-accepted {background: #3fae5c; border-radius: 2px; color: #2f8a46}
+    .care-answer-rejected {background: #d64545; border-radius: 2px; color: #a32626}
 
 </style>
