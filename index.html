@@ -161,7 +161,7 @@
             Human–AI co-writing session from AITDNA, replayed step by step.
         </p>
 
-        <div id="care-replay">
+        <div class="care-replay">
             <!--Topbar-->
             <div class="care-toolbar">
                 <div class="care-toolbar-left">
@@ -221,7 +221,6 @@
     </div>
 </section>
 
-<!--BibTex citation -->
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title">Citation</h2>
@@ -234,8 +233,6 @@
 }</code></pre>
     </div>
 </section>
-<!--End BibTex citation -->
-
 
   <footer class="footer">
   <div class="container">
@@ -258,21 +255,6 @@
 <script>
 (function () { 
 
-    // let interactions = [
-    //     { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
-    //     { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-    //     { offset: 8, operationType: "insert", span: 37, text: "a popular object detection framework.", createdAt: 1.4, user: "User" },
-    //     { id: 5, query: "rephrase this sentence about object detection", model: "gpt-5.2",
-    //     nlpService: "text_revision", selectionIndex: 8, selectionLength: 26,
-    //     requestType: "editor", createdAt: 3.4, temperature: 1 },
-      
-    //     { requestId: 5, accepted: "t",
-    //     response: " a very popular object detection",
-    //     createdAt: 12.3, success: "t" },
-    //     { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
-    //     { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
-    // ];
-
     let interactions = [
         { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
         { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
@@ -282,15 +264,21 @@
         requestType: "editor", createdAt: 3.4, temperature: 1 },
         { requestId: 5, accepted: "t",
         response: " popular object detection framework.",
-        createdAt: 12.3, success: "t" },
-        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 5.9, user: "User" },
-        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 7.4, user: "User" }
+        createdAt: 12.3, acceptedAt: 15.6, success: "t" },
+        { offset: 9, operationType: "insert", span: 36, text: " popular object detection framework.", createdAt: 16.6, user: "Bot"},
+        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 17.3, user: "User" },
+        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 18.9, user: "User" },
+        { id: 9, query: "make the YOLOv8 description more concise", model: "gpt-5.2",
+        nlpService: "rewrite", selectionIndex: 0, selectionLength: 46,
+        requestType: "editor", createdAt: 20.0, temperature: 1 },
+        { requestId: 9, accepted: "t",
+        response: "YOLOv8 is a fast object detector.",
+        createdAt: 28.0, acceptedAt: 30.5, success: "t" },
+        { offset: 12, operationType: "delete", span: 35, text: null,
+          createdAt: 30.7, user: "Bot"},
+        { offset: 12, operationType: "insert", span: 21, text: "fast object detector.",
+          createdAt: 31.4, user: "Bot"}
     ];
-
-    // $.getJSON("sessions/session_1/generalate/Task 1.1: Explanatory Writing Human-only/edits.json", function (data) {
-    //   console.log("Data: ", data);
-    //   interactions = data;
-    // })
   
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
@@ -308,6 +296,25 @@
     let timeouts = [];
     let pendingQueries = {};
 
+    const deferredOpIndices = new Set();
+    interactions.forEach((ev, i) => {
+      if (ev.requestId !== undefined && ev.accepted === "t") {
+        findDeferredOpsForResponse(i).forEach(({index}) => deferredOpIndices.add(index));
+      }
+    })
+
+    function findDeferredOpsForResponse(responseIdx) {
+      const response = interactions[responseIdx];
+      const ops = [];
+
+      for (let i = responseIdx + 1; i < interactions.length; i++) {
+        const ev = interactions[i];
+        if (!(ev.user === "Bot")) break;
+        if (ev.createdAt < response.acceptedAt) break;
+        ops.push({ev, index: i});
+      }
+      return ops;
+    }
 
     function compute_new_html(text, highlightRange) {
       let html = escapeHtml(text);
@@ -320,6 +327,7 @@
         }
       return html;
     }
+
     function renderEditor(highlightRange) {
         editorText.innerHTML = compute_new_html(docText, highlightRange);
         updateWordCount();
@@ -340,14 +348,55 @@
       return m + ":" + s;
     }
 
-    function typeIntoPopup(text, idx) {
+    function typeIntoPopup(text, idx, onComplete) {
       queryText.textContent = text.slice(0, idx);
-      setTimeout(() => typeIntoPopup(text, idx+1), 20);
+      if (idx >= text.length) {
+        if (onComplete) onComplete();
+        return;
+      }
+      setTimeout(() => typeIntoPopup(text, idx + 1, onComplete), 20);
     }
 
     function constructAnswerText(rsp, req) {
       let text = req.textContent;
       return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
+    }
+
+    function showGenerating() {
+      responseBox.innerHTML =
+        '<span class="care-generating">' +
+          '<span class="care-spinner"></span>' +
+          '<span>Generating…</span>' +
+        '</span>';
+      acceptBtn.classList.remove("is-active-accept");
+      rejectBtn.classList.remove("is-active-reject");
+    }
+
+    function applyDeferredOp(op) {
+      if (op.operationType === "insert") {
+        docText = docText.slice(0, op.offset) + op.text + docText.slice(op.offset);
+        const cls = op.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
+        renderEditor({ start: op.offset, end: op.offset + op.text.length, cls });
+
+      } else if (op.operationType === "delete") {
+        const end = op.offset + op.span;
+        renderEditor({ start: op.offset, end, cls: 'care-fade-out' });
+        docText = docText.slice(0, op.offset) + docText.slice(end);
+      }
+    }
+
+    function scheduleDeferredOps(ops, acceptedAt, baseDelayMs) {
+      let prevCreatedAt = acceptedAt;
+      let cumulative = baseDelayMs;
+      ops.forEach(op => {
+        const gapMs = scaledDelay(op.createdAt - prevCreatedAt);
+        cumulative += gapMs;
+        prevCreatedAt = op.createdAt;
+        setTimeout(() => {
+          applyDeferredOp(op);
+        }, cumulative);
+      });
+      return cumulative - baseDelayMs;
     }
   
     function applyEvent(ev, idx) {
@@ -355,49 +404,66 @@
             docText = docText.slice(0, ev.offset) + ev.text + docText.slice(ev.offset);
             const cls = ev.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
             renderEditor({ start: ev.offset, end: ev.offset + ev.text.length, cls });
-            setTimeout(() => renderEditor(), 5000);
 
         } else if (ev.operationType === "delete") {
             const end = ev.offset + ev.span;
             renderEditor({ start: ev.offset, end, cls: 'care-fade-out' });
             docText = docText.slice(0, ev.offset) + docText.slice(end);
-            setTimeout(() => {
-                renderEditor();
-            }, 3500);
-
         } else if (ev.query !== undefined) {
           ev.textContent = editorText.textContent;
           pendingQueries[ev.id] = ev;
 
           queryPopup.style.display = "flex";
           queryText.textContent = "";
-          typeIntoPopup(ev.query, 0);
+          if (ev.query !== null) {
+            typeIntoPopup(ev.query, 0, showGenerating);
+          } else {
+            showGenerating();
+          }
 
         } else if (ev.requestId !== undefined) {
           queryPopup.style.display = "none";
-          const accepted = ev.accepted === "t";
-          responseBox.innerHTML = "";
-
-          const respSpan = document.createElement("span");
           const req = pendingQueries[ev.requestId];
+          const accepted = ev.accepted === "t";
           const answerText = constructAnswerText(ev, req);
-          const cls = accepted ? "care-answer-accepted": "care-answer-rejected";
-          console.log("Answer: ", answerText);
-          const html =  compute_new_html(answerText, {start: req.selectionIndex, end: req.selectionIndex + ev.response.length, cls});
-          console.log("HTML: ", html);
-          respSpan.innerHTML = html;
-          responseBox.appendChild(respSpan);
 
-          acceptBtn.classList.remove("is-active-accept");
-          rejectBtn.classList.remove("is-active-reject");
+          setTimeout(() => {
+            responseBox.innerHTML = "";
+            const respSpan = document.createElement("span");
+            const html =  compute_new_html(answerText,{
+              start: req.selectionIndex,
+              end: req.selectionIndex + ev.response.length,
+              cls: "care-answer-pending"});
+            respSpan.innerHTML = html;
+            respSpan.id = "careActiveAnswerSpan";
+            responseBox.appendChild(respSpan);
 
-          if (accepted) {
-            acceptBtn.classList.add("is-active-accept");
-          } else {
-            rejectBtn.classList.add("is-active-reject");
-          }
-          // responseBox.classList.add(accepted ? 'care-accepted' : 'care-rejected');
+            const decisionDelayMs = scaledDelay(ev.acceptedAt - ev.createdAt);
+            setTimeout(() => {
+              const activeSpan = document.getElementById("careActiveAnswerSpan");
+              if (activeSpan) {
+                const cls = accepted ? "care-answer-accepted": "care-answer-rejected";
+                const finalHtml = compute_new_html(answerText,{
+                  start: req.selectionIndex,
+                  end: req.selectionIndex + ev.response.length,
+                  cls
+                })
+                activeSpan.innerHTML = finalHtml;
+                acceptBtn.classList.remove("is-active-accept");
+                rejectBtn.classList.remove("is-active-reject");
 
+                if (accepted) {
+                  acceptBtn.classList.add("is-active-accept");
+                } else {
+                  rejectBtn.classList.add("is-active-reject");
+                }
+              }
+              if (accepted) {
+                const ops = findDeferredOpsForResponse(idx).map(o => o.ev);
+                scheduleDeferredOps(ops, ev.acceptedAt, 0);
+              }
+            }, decisionDelayMs);
+          }, 1000);
         }
     }
 
@@ -406,15 +472,19 @@
     }
 
     function scaledDelay(delta) {
-      return delta * 200;
+      return delta * 300;
     }
 
     function scheduleAll() {
-      resetReplay();
       let cumulativeMs = 0;
       let prevCreatedAt = interactions[0].createdAt;
 
       interactions.forEach((ev, i) => {
+
+        if (deferredOpIndices.has(i)) {
+          prevCreatedAt = ev.createdAt;
+          return;
+        }
         const delta = ev.createdAt - prevCreatedAt;
         cumulativeMs += scaledDelay(delta);
         prevCreatedAt = ev.createdAt;
@@ -428,22 +498,28 @@
           }
         }, cumulativeMs);
         timeouts.push(t);
+
+        if (ev.requestId !== undefined && ev.acceptedAt !== undefined) {
+          const decisionDelayMs = scaledDelay(ev.acceptedAt - ev.createdAt);
+          cumulativeMs += 1000 + decisionDelayMs;
+
+          if (ev.accepted === "t") {
+            const ops = findDeferredOpsForResponse(i).map(o => o.ev);
+            let prevOpCreatedAt = ev.acceptedAt;
+            let opsSpanMs = 0;
+            ops.forEach(opEv => {
+              opsSpanMs += Math.max(0, scaledDelay(opEv.createdAt - prevOpCreatedAt));
+              prevOpCreatedAt = opEv.createdAt;
+            });
+            cumulativeMs += opsSpanMs;
+          }
+        }
       })
     }
 
     function clearAllTimeouts() {
       timeouts.forEach(t => clearTimeout(t));
       timeouts = [];
-    }
-
-    function resetReplay() {
-    //   clearAllTimeouts();
-    //   docText = "";
-    //   renderEditor();
-    //   responseBox.innerHTML = "";
-    //   queryPopup.style.display = "none";
-    //   queryPopup.textContent = "";
-    //   responseBox.classList.remove("care-accepted", "care-rejected");
     }
 
     playBtn.addEventListener("click", () => {
@@ -457,7 +533,7 @@
 </script>
 
 <style>
-    #care-replay {
+    .care-replay {
         --care-border: #e2e2e2;
         --care-text: #1f1f1f;
         --care-muted: #8a8a8a;
@@ -468,7 +544,7 @@
         --care-user-highlight: #d9ecff;
         --care-bot-highlight: #ffe8c2;
 
-        max-width: 980px;
+        max-width: 1200px;
         margin: 0 auto;
         border: 1px solid var(--care-border);
         border-radius: 10px;
@@ -606,8 +682,27 @@
     }
     .care-response-placeholder { color: var(--care-muted); }
 
-    /* .care-response-box.care-accepted { background: #eafbf0; border-color: #bfe6cc; }
-    .care-response-box.care-rejected { background: #fdeeee; border-color: #f0c4c4; } */
+    .care-generating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--care-muted);
+      font-style: italic;
+    }
+
+    .care-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #d8d8d8;
+      border-top-color: var(--care-blue);
+      border-radius: 50%;
+      display: inline-block;
+      animation: care-spin 0.8s linear infinite;
+    }
+
+    @keyframes care-spin {
+      to { transform: rotate(360deg); }
+    }
 
     .care-accept-reject {
       display: flex;
@@ -643,8 +738,19 @@
 
     .care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
     .care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
+    .care-editor-text .care-fade-out {
+      background: #ffd3d3;
+      text-decoration: line-through;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
 
-    .care-answer-accepted {background: #3fae5c; border-radius: 2px; color: #2f8a46}
-    .care-answer-rejected {background: #d64545; border-radius: 2px; color: #a32626}
-
+    .care-answer-accepted {background: #53b46d; border-radius: 2px; color: #0a4118}
+    .care-answer-rejected {background: #c85555; border-radius: 2px; color: #600a0a}
+    .care-answer-pending {
+      background: var(--care-pending-highlight);
+      border-radius: 2px;
+      color: #3a2f63;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
 </style>
