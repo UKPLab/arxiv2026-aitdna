@@ -249,8 +249,38 @@
             Interactive visualization of our AITD definitions.
         </p>
       
-      <div class="content has-text-centered">
-        
+      <div class="aitd-replay">
+        <div class="aitd-replay-settings">
+          <button class="aitd-option" id="spanLevel">Span Level</button>
+          <button class="aitd-option" id="documentLevel">Document Level</button>
+          <button class="aitd-option" id="sentenceLevel">Sentence Level</button>
+          <button class="aitd-option" id="boundaryLevel">Boundary Level</button>
+          <button class="aitd-option" id="intentLevel">Intent Level</button>
+          <button class="aitd-option" id="contentLevel">Content Level</button>
+          <button class="aitd-option" id="membershipLevel">Membership Level</button>
+          <button class="aitd-option" id="authorshipLevel">Authorship Level</button>
+        </div>
+
+        <div class="aitd-replay-pane">
+          <div class="aitd-pane-header">
+            <span class="aitd-pane-title">Notion Representation</span>
+            <span class="aitd-pane-legend">
+              <span class="aitd-legend-item">
+                <span class="aitd-legend-color aitd-legend-user"></span>
+                User
+              </span>
+              <span class="aitd-legend-item">
+                <span class="aitd-legend-color aitd-legend-bot"></span>
+                Bot
+              </span>
+            </span>
+          </div>
+          <div class="aitd-body">
+            <div class="aitd-text-body" id="aitdTextBody">
+              <p class="aitd-empty-state">Select a notion on the left to see an example.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -289,315 +319,8 @@
   </body>
 </html>
 
-<script>
-(function () { 
-
-    let interactions = [
-        { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
-        { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-        { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
-        { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
-        nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
-        requestType: "editor", createdAt: 3.4, temperature: 1 },
-        { requestId: 5, accepted: "t",
-        response: " popular object detection framework.",
-        createdAt: 12.3, decidedAt: 15.6, success: "t" },
-        { offset: 9, operationType: "insert", span: 36, text: " popular object detection framework.", createdAt: 16.6, user: "Bot"},
-        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 17.3, user: "User" },
-        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 18.9, user: "User" },
-        { id: 9, query: "make the YOLOv8 description more concise", model: "gpt-5.2",
-        nlpService: "rewrite", selectionIndex: 0, selectionLength: 46,
-        requestType: "editor", createdAt: 20.0, temperature: 1 },
-        { requestId: 9, accepted: "t",
-        response: "YOLOv8 is a fast object detector.",
-        createdAt: 28.0, decidedAt: 30.5, success: "t" },
-        { offset: 12, operationType: "delete", span: 35, text: null,
-          createdAt: 30.7, user: "Bot"},
-        { offset: 12, operationType: "insert", span: 21, text: "fast object detector.",
-          createdAt: 31.4, user: "Bot"}
-    ];
-  
-    const editorText = document.getElementById("careEditorText");
-    const playBtn = document.getElementById("carePlayBtn");
-    const resetBtn = document.getElementById("careResetBtn");
-    const queryPopup = document.getElementById("careQueryPopup");
-    const queryText = document.getElementById("careQueryText");
-    const responseBox = document.getElementById("careResponseBox");
-    const sidebarPane = document.getElementById("careSidebarPane");
-    const acceptBtn = document.getElementById("careAcceptButton");
-    const rejectBtn = document.getElementById("careRejectButton");
-    const timer = document.getElementById("careTimer");
-    const wordCount = document.getElementById("careWordCount");
-
-    let isPlaying = false;
-    let docText = "";
-    let timeouts = [];
-    let pendingQueries = {};
-
-    const deferredOpIndices = new Set();
-    interactions.forEach((ev, i) => {
-      if (ev.requestId !== undefined && ev.accepted === "t") {
-        findDeferredOpsForResponse(i).forEach(({index}) => deferredOpIndices.add(index));
-      }
-    })
-
-    function findDeferredOpsForResponse(responseIdx) {
-      const response = interactions[responseIdx];
-      const ops = [];
-
-      for (let i = responseIdx + 1; i < interactions.length; i++) {
-        const ev = interactions[i];
-        if (!(ev.user === "Bot")) break;
-        if (ev.createdAt < response.decidedAt) break;
-        ops.push({ev, index: i});
-      }
-      return ops;
-    }
-
-    function compute_new_html(text, highlightRange) {
-      let html = escapeHtml(text);
-        if (highlightRange) {
-        const { start, end, cls } = highlightRange;
-        const before = escapeHtml(text.slice(0, start));
-        const mid = escapeHtml(text.slice(start, end));
-        const after = escapeHtml(text.slice(end));
-        html = before + '<span class="' + cls + '">' + mid + '</span>' + after;
-        }
-      return html;
-    }
-
-    function renderEditor(highlightRange) {
-        editorText.innerHTML = compute_new_html(docText, highlightRange);
-        updateWordCount();
-    }
-
-    function escapeHtml(str) {
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    function updateWordCount() {
-      const words = docText.trim().split(/\s+/).filter(Boolean).length;
-      wordCount.textContent = 'Word count: ' + words;
-    }
-
-    function formatTimer(seconds) {
-      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
-      const s = Math.floor(seconds % 60).toString().padStart(2, "0");
-      return m + ":" + s;
-    }
-
-    function typeIntoPopup(text, idx, onComplete) {
-      queryText.textContent = text.slice(0, idx);
-      if (idx >= text.length) {
-        if (onComplete) onComplete();
-        return;
-      }
-      const t = setTimeout(() => typeIntoPopup(text, idx + 1, onComplete), 20);
-      timeouts.push(t);
-    }
-
-    function constructAnswerText(rsp, req) {
-      let text = req.textContent;
-      return text.slice(0, req.selectionIndex) + rsp.response + text.slice(req.selectionIndex + req.selectionLength);
-    }
-
-    function showGenerating() {
-      responseBox.innerHTML =
-        '<span class="care-generating">' +
-          '<span class="care-spinner"></span>' +
-          '<span>Generating…</span>' +
-        '</span>';
-      acceptBtn.classList.remove("is-active-accept");
-      rejectBtn.classList.remove("is-active-reject");
-    }
-
-    function applyDeferredOp(op) {
-      if (op.operationType === "insert") {
-        docText = docText.slice(0, op.offset) + op.text + docText.slice(op.offset);
-        const cls = op.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
-        renderEditor({ start: op.offset, end: op.offset + op.text.length, cls });
-
-      } else if (op.operationType === "delete") {
-        const end = op.offset + op.span;
-        renderEditor({ start: op.offset, end, cls: 'care-fade-out' });
-        docText = docText.slice(0, op.offset) + docText.slice(end);
-      }
-    }
-
-    function scheduleDeferredOps(ops, decidedAt, baseDelayMs) {
-      let prevCreatedAt = decidedAt;
-      let cumulative = baseDelayMs;
-      ops.forEach(op => {
-        const gapMs = scaledDelay(op.createdAt - prevCreatedAt);
-        cumulative += gapMs;
-        prevCreatedAt = op.createdAt;
-        const t = setTimeout(() => {
-          applyDeferredOp(op);
-        }, cumulative);
-        timeouts.push(t);
-      });
-      return cumulative - baseDelayMs;
-    }
-  
-    function applyEvent(ev, idx) {
-      if (ev.operationType === "insert") {
-          docText = docText.slice(0, ev.offset) + ev.text + docText.slice(ev.offset);
-          const cls = ev.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
-          renderEditor({ start: ev.offset, end: ev.offset + ev.text.length, cls });
-
-      } else if (ev.operationType === "delete") {
-          const end = ev.offset + ev.span;
-          renderEditor({ start: ev.offset, end, cls: 'care-fade-out' });
-          docText = docText.slice(0, ev.offset) + docText.slice(end);
-      } else if (ev.query !== undefined) {
-        ev.textContent = editorText.textContent;
-        pendingQueries[ev.id] = ev;
-
-        queryPopup.style.display = "flex";
-        queryText.textContent = "";
-        if (ev.query !== null) {
-          typeIntoPopup(ev.query, 0, showGenerating);
-        } else {
-          showGenerating();
-        }
-
-      } else if (ev.requestId !== undefined) {
-        queryPopup.style.display = "none";
-        const req = pendingQueries[ev.requestId];
-        const accepted = ev.accepted === "t";
-        const answerText = constructAnswerText(ev, req);
-
-        const t = setTimeout(() => {
-          responseBox.innerHTML = "";
-          const respSpan = document.createElement("span");
-          const html =  compute_new_html(answerText,{
-            start: req.selectionIndex,
-            end: req.selectionIndex + ev.response.length,
-            cls: "care-answer-pending"});
-          respSpan.innerHTML = html;
-          respSpan.id = "careActiveAnswerSpan";
-          responseBox.appendChild(respSpan);
-
-          const decisionDelayMs = scaledDelay(ev.decidedAt - ev.createdAt);
-          const tm = setTimeout(() => {
-            const activeSpan = document.getElementById("careActiveAnswerSpan");
-            if (activeSpan) {
-              const cls = accepted ? "care-answer-accepted": "care-answer-rejected";
-              const finalHtml = compute_new_html(answerText,{
-                start: req.selectionIndex,
-                end: req.selectionIndex + ev.response.length,
-                cls
-              })
-              activeSpan.innerHTML = finalHtml;
-              acceptBtn.classList.remove("is-active-accept");
-              rejectBtn.classList.remove("is-active-reject");
-
-              if (accepted) {
-                acceptBtn.classList.add("is-active-accept");
-              } else {
-                rejectBtn.classList.add("is-active-reject");
-              }
-            }
-            if (accepted) {
-              const ops = findDeferredOpsForResponse(idx).map(o => o.ev);
-              scheduleDeferredOps(ops, ev.decidedAt, 0);
-            }
-          }, decisionDelayMs);
-          timeouts.push(tm);
-        }, 1000);
-        timeouts.push(t);
-      }
-    }
-
-    function finishPlayback() {
-        isPlaying = false;
-    }
-
-    function scaledDelay(delta) {
-      return Math.sqrt(delta) * 600;
-    }
-
-    function scheduleAll() {
-      let cumulativeMs = 0;
-      let prevCreatedAt = interactions[0].createdAt;
-
-      interactions.forEach((ev, i) => {
-        if (!isPlaying) return;
-        if (deferredOpIndices.has(i)) {
-          prevCreatedAt = ev.createdAt;
-          return;
-        }
-        const delta = ev.createdAt - prevCreatedAt;
-        cumulativeMs += scaledDelay(delta);
-        prevCreatedAt = ev.createdAt;
-
-        const t = setTimeout(() => {
-          applyEvent(ev, i);
-          timer.textContent = formatTimer(ev.createdAt);
-          timeouts.push(t);
-          if (i === interactions.length - 1) {
-              finishPlayback();
-          }
-        }, cumulativeMs);
-        timeouts.push(t);
-
-        if (ev.requestId !== undefined && ev.decidedAt !== undefined) {
-          const decisionDelayMs = scaledDelay(ev.decidedAt - ev.createdAt);
-          cumulativeMs += 1000 + decisionDelayMs;
-
-          if (ev.accepted === "t") {
-            const ops = findDeferredOpsForResponse(i).map(o => o.ev);
-            let prevOpCreatedAt = ev.decidedAt;
-            let opsSpanMs = 0;
-            ops.forEach(opEv => {
-              opsSpanMs += Math.max(0, scaledDelay(opEv.createdAt - prevOpCreatedAt));
-              prevOpCreatedAt = opEv.createdAt;
-            });
-            cumulativeMs += opsSpanMs;
-          }
-        }
-      })
-    }
-
-    function clearAllTimeouts() {
-      timeouts.forEach(t => clearTimeout(t));
-      timeouts = [];
-    }
-
-    function resetReplay() {
-      docText = "";
-      renderEditor();
-      responseBox.innerHTML = "";
-      timer.textContent = "00:00";
-      
-      responseBox.innerHTML = "";
-      const placeholder = document.createElement("span");
-      placeholder.className = "care-response-placeholder";
-      placeholder.id = "careResponsePlaceholder";
-      placeholder.textContent = "The model answer will be displayed here";
-      responseBox.appendChild(placeholder);
-
-      queryPopup.style.display = "none";
-
-      acceptBtn.classList.remove("is-active-accept");
-      rejectBtn.classList.remove("is-active-reject");
-    }
-
-    playBtn.addEventListener("click", () => {
-        if (isPlaying) {
-            return;
-        }
-        isPlaying = true;
-        scheduleAll();
-    });
-
-    resetBtn.addEventListener("click", () => {
-      clearAllTimeouts();
-      isPlaying = false;
-      resetReplay();
-    })
-})();
-</script>
+<script type="text/javascript" src="static/js/interaction_traces.js"></script>
+<script type="text/javascript" src="static/js/aitd.js"></script>
 
 <style>
     .care-replay {
@@ -706,7 +429,6 @@
     .care-editor-text {
         padding: 0.5rem 0.5rem;
         font-size: 0.8rem;
-
     }
 
     .care-query-popup {
@@ -827,5 +549,106 @@
       border-radius: 2px;
       color: #3a2f63;
       transition: background 0.4s ease, color 0.4s ease;
+    }
+
+  
+    .aitd-replay {
+        --aitd-border: #e2e2e2;
+        --aitd-text: #1f1f1f;
+        --aitd-muted: #8a8a8a;
+        --aitd-yellow: #fce98a;
+        --aitd-yellow-text: #6b5800;
+        --aitd-green: #3fae5c;
+        --aitd-blue: #2f6fed;
+        --aitd-user-highlight: #d9ecff;
+        --aitd-bot-highlight: #ffe8c2;
+        --aitd-toolbar-menu: #888;
+
+        min-height: 200px;
+        min-width: 1000px;
+        max-width: 1200px;
+        margin: 0 auto;
+        border: 1px solid var(--aitd-border);
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        color: var(--aitd-text);
+        overflow: hidden;
+        display: flex;
+        min-height: 500px;
+    }
+    
+
+    .aitd-replay-settings {
+      flex: 0 0 30%;
+      border-right: 1px solid var(--aitd-border);
+      background: #fff;
+      overflow: hidden;
+      text-align: center;
+      padding: 1rem 0rem;
+    }
+
+    .aitd-option {
+      text-align: center;
+      border: 1px solid var(--aitd-border);
+      cursor: pointer;
+      width: 80%;
+      border-radius: 8px;
+      margin: 0.2rem 0.1rem;
+      background-color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .aitd-replay-pane {
+        flex: 1 1 auto;
+        background: #fff;
+    }
+
+    .aitd-pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+      border-bottom: 1px solid var(--aitd-border);
+    }
+
+    .aitd-pane-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .aitd-legend-item {
+      margin-right: 0.5rem;
+    }
+
+    .aitd-legend-color {
+      width: 1rem;
+      height: 1rem;
+      display: inline-block;
+    }
+
+    .aitd-legend-user {
+      background-color: var(--aitd-user-highlight);
+      border: 1px solid var(--aitd-blue);
+    }
+
+    .aitd-legend-bot {
+      background-color: var(--aitd-bot-highlight);
+      border: 1px solid var(--aitd-yellow);
+    }
+
+    .aitd-body {
+      padding: 1rem 1rem;
+    }
+
+    .aitd-text-body {
+      background-color: #f3f3f3;
+      border: 1px solid var(--aitd-border);
+      border-radius: 0.5rem;
+      min-height: 30rem;
+      padding: 0.5rem 0.5rem;
+      color: var(--aitd-muted);
+      font-size: 0.9rem;
     }
 </style>
