@@ -186,12 +186,30 @@
                 <div class="care-editor-pane">
                     <!--Editor toolbar-->
                     <div class="care-subtoolbar">
-                        <span class="care-icons" aria-hidden="true">
-                            <span class="care-icon-btn"><b>B</b></span>
-                            <span class="care-icon-btn"><i>I</i></span>
-                            <span class="care-icon-btn care-underline">U</span>
-                            <span class="care-icon-btn care-line-through">S</span>
+                      <span class="care-icons care-model">
+                        <span>Sans Serif
+                          <i class="fa fa-sort"></i>
                         </span>
+                      </span>
+                      <span class="care-icons care-model">
+                        <span>GPT-5.2
+                          <i class="fa fa-sort"></i>
+                        </span>
+                      </span>
+                      <span class="care-icons" aria-hidden="true">
+                        <span class="care-icon-btn"><b>B</b></span>
+                        <span class="care-icon-btn"><i>I</i></span>
+                        <span class="care-icon-btn care-underline">U</span>
+                        <span class="care-icon-btn care-line-through">S</span>
+                      </span>
+                      <span class="care-icons" aria-hidden="true">
+                        <span class="care-icon-btn">
+                          <i class="fas fa-list-ul"></i>
+                        </span>
+                        <span class="care-icon-btn">
+                          <i class="fas fa-list-ol"></i>
+                        </span>
+                      </span>
                     </div>
                     <div class="care-editor-text" id="careEditorText">
                     </div>
@@ -480,7 +498,7 @@
     }
 
     function scaledDelay(delta) {
-      return delta * 300;
+      return Math.sqrt(delta) * 600;
     }
 
     function scheduleAll() {
@@ -576,6 +594,7 @@
         --care-blue: #2f6fed;
         --care-user-highlight: #d9ecff;
         --care-bot-highlight: #ffe8c2;
+        --care-toolbar-menu: #888;
 
         max-width: 1200px;
         margin: 0 auto;
@@ -617,14 +636,21 @@
     }
     
     .care-icons {
-        color: #888;
+        color: var(--care-toolbar-menu);
         gap: 0.5rem;
         display: flex;
         align-items: center;
+        margin-right: 1.5rem;
+    }
+
+    .care-model {
+      background: #fdfdfd;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--care-toolbar-menu);
     }
 
     .care-icon-btn {
-        width: 0.75rem;
         text-align: center;
     }
 
