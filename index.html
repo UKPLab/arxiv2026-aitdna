@@ -161,88 +161,104 @@
             Human–AI co-writing session from AITDNA, replayed step by step.
         </p>
 
-        <div class="care-replay">
-            <!--Topbar-->
-            <div class="care-toolbar">
-                <div class="care-toolbar-left">
-                    <span class="care-logo">
-                      <img class="care-logo-img"src="static/images/care_logo.svg">
-                    </span>
-                    <button class="care-play-btn" id="carePlayBtn">
-                        <i class="fas fa-play"></i> Play
-                    </button>
-                    <button class="care-reset-btn" id="careResetBtn">
-                        <i class="fa fa-undo"></i> Reset
-                    </button>
-                </div>
-                <div class="care-toolbar-middle">
-                    <span class="care-badge" id="careTimer">00:00</span>
-                    <span class="care-badge care-badge-yellow" id="careWordCount">Word count: 0</span>
-                </div>
+      <div class="care-replay">
+        <!--Topbar-->
+        <div class="care-toolbar">
+            <div class="care-toolbar-left">
+                <span class="care-logo">
+                  <img class="care-logo-img"src="static/images/care_logo.svg">
+                </span>
+                <button class="care-play-btn" id="carePlayBtn">
+                    <i class="fas fa-play"></i> Play
+                </button>
+                <button class="care-reset-btn" id="careResetBtn">
+                    <i class="fa fa-undo"></i> Reset
+                </button>
             </div>
+            <div class="care-toolbar-middle">
+                <span class="care-badge" id="careTimer">00:00</span>
+                <span class="care-badge care-badge-yellow" id="careWordCount">Word count: 0</span>
+            </div>
+        </div>
 
 
-            <div class="care-panes">
-                <div class="care-editor-pane">
-                    <!--Editor toolbar-->
-                    <div class="care-subtoolbar">
-                      <span class="care-icons care-model">
-                        <span>Sans Serif
-                          <i class="fa fa-sort"></i>
-                        </span>
-                      </span>
-                      <span class="care-icons care-model">
-                        <span>GPT-5.2
-                          <i class="fa fa-sort"></i>
-                        </span>
-                      </span>
-                      <span class="care-icons" aria-hidden="true">
-                        <span class="care-icon-btn"><b>B</b></span>
-                        <span class="care-icon-btn"><i>I</i></span>
-                        <span class="care-icon-btn care-underline">U</span>
-                        <span class="care-icon-btn care-line-through">S</span>
-                      </span>
-                      <span class="care-icons" aria-hidden="true">
-                        <span class="care-icon-btn">
-                          <i class="fas fa-list-ul"></i>
-                        </span>
-                        <span class="care-icon-btn">
-                          <i class="fas fa-list-ol"></i>
-                        </span>
-                      </span>
-                    </div>
-                    <div class="care-editor-text" id="careEditorText">
-                    </div>
-                    <div class="care-query-popup" id="careQueryPopup">
-                      <span class="care-query-text" id="careQueryText"></span>
-                      <span class="care-query-send" aria-hidden="true">
-                        <i class="fa fa-paper-plane"></i>
-                      </span>
-                    </div>
-
+        <div class="care-panes">
+            <div class="care-editor-pane">
+                <!--Editor toolbar-->
+                <div class="care-subtoolbar">
+                  <span class="care-icons care-model">
+                    <span>Sans Serif
+                      <i class="fa fa-sort"></i>
+                    </span>
+                  </span>
+                  <span class="care-icons care-model">
+                    <span>GPT-5.2
+                      <i class="fa fa-sort"></i>
+                    </span>
+                  </span>
+                  <span class="care-icons" aria-hidden="true">
+                    <span class="care-icon-btn"><b>B</b></span>
+                    <span class="care-icon-btn"><i>I</i></span>
+                    <span class="care-icon-btn care-underline">U</span>
+                    <span class="care-icon-btn care-line-through">S</span>
+                  </span>
+                  <span class="care-icons" aria-hidden="true">
+                    <span class="care-icon-btn">
+                      <i class="fas fa-list-ul"></i>
+                    </span>
+                    <span class="care-icon-btn">
+                      <i class="fas fa-list-ol"></i>
+                    </span>
+                  </span>
                 </div>
-                <div class="care-sidebar-pane" id="careSidebarPane">
-                    <div class="care-sidebar-header">
-                        <span class="care-sidebar-title">🤖 LLM Response</span>
-                    </div>
-                    <div class="care-response-box" id="careResponseBox">
-                        <span class="care-response-placeholder" id="careResponsePlaceholder">The model answer will be displayed here</span>
-                    </div>
-                    <div class="care-accept-reject">
-                      <span class="care-accept-reject-buttons" id="careAcceptButton">
-                        <i class="fa fa-check"></i>
-                      </span>
-                      <span class="care-accept-reject-buttons" id="careRejectButton">
-                        <i class="fa fa-times"></i>
-                      </span>
-                    </div>
+                <div class="care-editor-text" id="careEditorText">
+                </div>
+                <div class="care-query-popup" id="careQueryPopup">
+                  <span class="care-query-text" id="careQueryText"></span>
+                  <span class="care-query-send" aria-hidden="true">
+                    <i class="fa fa-paper-plane"></i>
+                  </span>
+                </div>
+
+            </div>
+            <div class="care-sidebar-pane" id="careSidebarPane">
+                <div class="care-sidebar-header">
+                    <span class="care-sidebar-title">🤖 LLM Response</span>
+                </div>
+                <div class="care-response-box" id="careResponseBox">
+                    <span class="care-response-placeholder" id="careResponsePlaceholder">The model answer will be displayed here</span>
+                </div>
+                <div class="care-accept-reject">
+                  <span class="care-accept-reject-buttons" id="careAcceptButton">
+                    <i class="fa fa-check"></i>
+                  </span>
+                  <span class="care-accept-reject-buttons" id="careRejectButton">
+                    <i class="fa fa-times"></i>
+                  </span>
                 </div>
             </div>
         </div>
+      </div>
     </div>
 </section>
 
-  <section class="section" id="BibTeX">
+<section class="section hero is-light">
+    <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">AITD Notions</h2>
+        <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
+            Interactive visualization of our AITD definitions.
+        </p>
+      
+      <div class="content has-text-centered">
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+
+      
+<section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title">Citation</h2>
       <pre><code>@article{dycke2026youraitextmine,
@@ -255,7 +271,7 @@
     </div>
 </section>
 
-  <footer class="footer">
+<footer class="footer">
   <div class="container">
     <div class="columns is-centered">
       <div class="column is-8">
