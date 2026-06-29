@@ -1,7 +1,6 @@
 (function () { 
-    $.getJSON("static/showcase_data/interaction/edits.json", function (data) {
-      const interactions = data;
-  
+  $.getJSON("static/showcase_data/interaction/edits.json", function (data) {
+    const interactions = data;
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
     const resetBtn = document.getElementById("careResetBtn");
@@ -24,7 +23,7 @@
       if (ev.requestId !== undefined && ev.accepted === "t") {
         findDeferredOpsForResponse(i).forEach(({index}) => deferredOpIndices.add(index));
       }
-    })
+    });
 
     function findDeferredOpsForResponse(responseIdx) {
       const response = interactions[responseIdx];
@@ -123,7 +122,7 @@
       });
       return cumulative - baseDelayMs;
     }
-  
+
     function applyEvent(ev, idx) {
       if (ev.operationType === "insert") {
           docText = docText.slice(0, ev.offset) + ev.text + docText.slice(ev.offset);
@@ -270,19 +269,18 @@
       rejectBtn.classList.remove("is-active-reject");
     }
 
-    playBtn.addEventListener("click", () => {
-        if (isPlaying) {
-            return;
-        }
-        isPlaying = true;
-        scheduleAll();
-    });
+  playBtn.addEventListener("click", () => {
+    if (isPlaying) {
+        return;
+    }
+    isPlaying = true;
+    scheduleAll();
+  });
 
-    resetBtn.addEventListener("click", () => {
-      clearAllTimeouts();
-      isPlaying = false;
-      resetReplay();
-    });
-  })
-  
+  resetBtn.addEventListener("click", () => {
+    clearAllTimeouts();
+    isPlaying = false;
+    resetReplay();
+  });
+});
 })();
