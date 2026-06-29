@@ -45,6 +45,17 @@
   <script src="static/js/index.js"></script>
 </head>
 <body>
+  <nav class="topnav" id="topnav">
+    <div class="topnav-inner">
+      <a href="#" class="topnav-title">Your AI image is not mine</a>
+      <div class="topnav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#careReplaySection">Human-AI Demo</a>
+        <a href="#aitdNotions">AITD Demo</a>
+        <a href="#BibTeX">Citation</a>
+      </div>
+    </div>
+  </nav>
 
   <section class="hero">
     <div class="hero-body">
@@ -55,14 +66,14 @@
             <div class="is-size-5 publication-authors">
               <!-- Paper authors -->
               <span class="author-block">
-                <a href="https://scholar.google.com/citations?user=UxhfZPUAAAAJ&hl=de" target="_blank">Nils Dycke</a><sup>*1,2</sup>,</span>
+                <a href="https://scholar.google.com/citations?user=UxhfZPUAAAAJ&hl=de" target="_blank"><span class="author-name">Nils Dycke</span></a><sup>*1,2</sup>,</span>
                 <span class="author-block">
-                  <a href="https://scholar.google.com/citations?user=LhIW9GgAAAAJ&hl=en" target="_blank">Marina Sakharova</a><sup>*1,2,3</sup>,</span>
+                  <a href="https://scholar.google.com/citations?user=LhIW9GgAAAAJ&hl=en" target="_blank"><span class="author-name">Marina Sakharova</span></a><sup>*1,2,3</sup>,</span>
                   <span class="author-block">
-                    <a href="https://scholar.google.com/citations?user=n6wJfqUAAAAJ&hl=en" target="_blank">Nico Daheim</a><sup>1,2</sup>,
+                    <a href="https://scholar.google.com/citations?user=n6wJfqUAAAAJ&hl=en" target="_blank"><span class="author-name">Nico Daheim</span></a><sup>1,2</sup>,
                   </span>
                   <span class="author-block">
-                    <a href="https://scholar.google.com/citations?user=t3A39e8AAAAJ&hl=en" target="_blank">Iryna Gurevych</a><sup>1,2,3</sup>
+                    <a href="https://scholar.google.com/citations?user=t3A39e8AAAAJ&hl=en" target="_blank"><span class="author-name">Iryna Gurevych</span></a><sup>1,2,3</sup>
                   </span>
                   </div>
 
@@ -133,7 +144,7 @@
 </section>
 
 <!-- Paper abstract -->
-<section class="section hero is-light">
+<section class="section hero is-light" id="abstract">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
@@ -154,7 +165,7 @@
 </section>
 <!-- End paper abstract -->
 
-<section class="section" id="care-replay-section">
+<section class="section" id="careReplaySection">
     <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">Interaction Replay</h2>
         <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
@@ -242,7 +253,7 @@
     </div>
 </section>
 
-<section class="section hero is-light">
+<section class="section hero is-light" id="aitdNotions">
     <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">AITD Notions</h2>
         <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
@@ -258,7 +269,6 @@
           <button class="aitd-option" id="intentLevel">Intent Level</button>
           <button class="aitd-option" id="contentLevel">Content Level</button>
           <button class="aitd-option" id="membershipLevel">Membership Level</button>
-          <button class="aitd-option" id="authorshipLevel">Authorship Level</button>
         </div>
 
         <div class="aitd-replay-pane">
@@ -306,7 +316,6 @@
     <div class="columns is-centered">
       <div class="column is-8">
         <div class="content">
-
           <p>
             This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
           </p>
@@ -323,340 +332,401 @@
 <script type="text/javascript" src="static/js/aitd.js"></script>
 
 <style>
-    .care-replay {
-        --care-border: #e2e2e2;
-        --care-text: #1f1f1f;
-        --care-muted: #8a8a8a;
-        --care-yellow: #fce98a;
-        --care-yellow-text: #6b5800;
-        --care-green: #3fae5c;
-        --care-blue: #2f6fed;
-        --care-user-highlight: #d9ecff;
-        --care-bot-highlight: #ffe8c2;
-        --care-toolbar-menu: #888;
 
-        max-width: 1200px;
-        margin: 0 auto;
-        border: 1px solid var(--care-border);
-        border-radius: 10px;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        color: var(--care-text);
-        overflow: hidden;
-    }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #fff;
+    color: #3a322a;
+  }
 
-    .care-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--care-border);
-        background: #f5f5f5;
-    }
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #FAF6EF;
+    border-bottom: 1px solid var(--care-border);
+  }
 
-    .care-toolbar-left {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+  .topnav-inner {
+    max-width: 60rem;
+    margin: 0 auto;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+  }
 
-    .care-toolbar-middle {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+  .topnav-title {
+    font-weight: 600;
+    color: #3a322a;
+    letter-spacing: 0.03em;
+    font-size: 1.3rem;
+  }
 
-    .care-subtoolbar {
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid var(--care-border);
-        padding: 0.5rem 1rem;
-    }
-    
-    .care-icons {
-        color: var(--care-toolbar-menu);
-        gap: 0.5rem;
-        display: flex;
-        align-items: center;
-        margin-right: 1.5rem;
-    }
+  .topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 
-    .care-model {
-      background: #fdfdfd;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--care-toolbar-menu);
-    }
+  .topnav-links a {
+    color: #6b6056;
+    font-size: 1rem;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+  }
 
-    .care-icon-btn {
-        text-align: center;
-    }
+  .topnav-links a:hover {
+    color: #3a322a;
+    background: rgba(58, 50, 42, 0.05);
+    border-radius: 8px;
+    padding: 0.2rem 0.2rem;
+  }
 
-    .care-logo-img {
-      width: 50px;
-      height: auto;
-    }
+  .author-name {
+    font-weight: 600;
+    color: #000;
+  }
 
-    .care-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.6rem;
-        border-radius: 5px;
-        background: var(--care-yellow);
-        color: var(--care-yellow-text);
-    }
-    .care-badge-yellow { background: var(--care-yellow); color: var(--care-yellow-text); }
+  .care-replay {
+      --care-border: #e2e2e2;
+      --care-text: #1f1f1f;
+      --care-muted: #8a8a8a;
+      --care-yellow: #fce98a;
+      --care-yellow-text: #6b5800;
+      --care-green: #3fae5c;
+      --care-blue: #2f6fed;
+      --care-user-highlight: #d9ecff;
+      --care-bot-highlight: #ffe8c2;
+      --care-toolbar-menu: #888;
 
-    .care-panes {
-        display: flex;
-        min-height: 500px;
-    }
-
-    .care-underline {
-      text-decoration: underline;
-    }
-
-    .care-line-through {
-      text-decoration: line-through;
-    }
-
-    .care-editor-pane {
-        border-right: 1px solid var(--care-border);
-        flex: 1 1 65%;
-    }
-
-    .care-editor-text {
-        padding: 0.5rem 0.5rem;
-        font-size: 0.8rem;
-    }
-
-    .care-query-popup {
-      display: none;
-      align-items: center;
-      z-index: 999;
-      max-width: 300px;
-      position: absolute;
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid var(--care-border);
+      border-radius: 10px;
       background: #fff;
-      border: 1.5px solid var(--care-border);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      box-shadow: 0 4px 14px rgba(47,111,237,0.18);
-      gap: 0.5rem;
-      padding: 0.3rem 0.7rem;
-    }
-
-    .care-query-text {
-      overflow-x: hidden;
-      white-space: nowrap;
-    }
-
-    .care-sidebar-pane {
-        flex: 1 1 35%;
-        background: #fdfdfd;
-        padding: 0rem 1rem;
-    }
-
-    .care-sidebar-header {
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid var(--care-border);
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .care-sidebar-title {
-        font-weight: 500;
-    }
-    .care-response-box{
-        border: 1px solid var(--care-border);
-        border-radius: 0.5rem;
-        padding: 0.5rem 0.5rem;
-        min-height: 200px;
-        color: #333;
-        background: #f3f3f3;
-        font-size: 0.8rem;
-    }
-    .care-response-placeholder { color: var(--care-muted); }
-
-    .care-generating {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--care-muted);
-      font-style: italic;
-    }
-
-    .care-spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid #d8d8d8;
-      border-top-color: var(--care-blue);
-      border-radius: 50%;
-      display: inline-block;
-      animation: care-spin 0.8s linear infinite;
-    }
-
-    @keyframes care-spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .care-accept-reject {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0rem;
-    }
-
-    .care-accept-reject-buttons {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 30px;
-      background: #f3f3f3;
-      border: 1px solid #d6d4d4;
-      border-radius: 5px;
-      padding: 0.4rem 0;
-      cursor: pointer;
-      color: #7e7e7e;
-    }
-
-    .is-active-accept {
-      background: #3fae5c;
-      border-color: #2f8a46;
-      color: #fff;
-    }
-
-    .is-active-reject {
-      background: #d64545;
-      border-color: #a32626;
-      color: #fff;
-    }
-
-    .care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
-    .care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
-    .care-editor-text .care-fade-out {
-      background: #ffd3d3;
-      text-decoration: line-through;
-      opacity: 1;
-      transition: opacity 0.4s ease;
-    }
-
-    .care-answer-accepted {background: #53b46d; border-radius: 2px; color: #0a4118}
-    .care-answer-rejected {background: #c85555; border-radius: 2px; color: #600a0a}
-    .care-answer-pending {
-      background: var(--care-pending-highlight);
-      border-radius: 2px;
-      color: #3a2f63;
-      transition: background 0.4s ease, color 0.4s ease;
-    }
-
-  
-    .aitd-replay {
-        --aitd-border: #e2e2e2;
-        --aitd-text: #1f1f1f;
-        --aitd-muted: #8a8a8a;
-        --aitd-yellow: #fce98a;
-        --aitd-yellow-text: #6b5800;
-        --aitd-green: #3fae5c;
-        --aitd-blue: #2f6fed;
-        --aitd-user-highlight: #d9ecff;
-        --aitd-bot-highlight: #ffe8c2;
-        --aitd-toolbar-menu: #888;
-
-        min-height: 200px;
-        min-width: 1000px;
-        max-width: 1200px;
-        margin: 0 auto;
-        border: 1px solid var(--aitd-border);
-        border-radius: 10px;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        color: var(--aitd-text);
-        overflow: hidden;
-        display: flex;
-        min-height: 500px;
-    }
-    
-
-    .aitd-replay-settings {
-      flex: 0 0 30%;
-      border-right: 1px solid var(--aitd-border);
-      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: var(--care-text);
       overflow: hidden;
-      text-align: center;
-      padding: 1rem 0rem;
-    }
+  }
 
-    .aitd-option {
-      text-align: center;
-      border: 1px solid var(--aitd-border);
-      cursor: pointer;
-      width: 80%;
-      border-radius: 8px;
-      margin: 0.2rem 0.1rem;
-      background-color: #ffffff;
-      font-size: 1rem;
-    }
-
-    .aitd-replay-pane {
-        flex: 1 1 auto;
-        background: #fff;
-    }
-
-    .aitd-pane-header {
+  .care-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.5rem 1.5rem;
-      border-bottom: 1px solid var(--aitd-border);
-    }
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--care-border);
+      background: #f5f5f5;
+  }
 
-    .aitd-pane-title {
+  .care-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+  }
+
+  .care-toolbar-middle {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+  }
+
+  .care-subtoolbar {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--care-border);
+      padding: 0.5rem 1rem;
+  }
+  
+  .care-icons {
+      color: var(--care-toolbar-menu);
+      gap: 0.5rem;
+      display: flex;
+      align-items: center;
+      margin-right: 1.5rem;
+  }
+
+  .care-model {
+    background: #fdfdfd;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--care-toolbar-menu);
+  }
+
+  .care-icon-btn {
+      text-align: center;
+  }
+
+  .care-logo-img {
+    width: 50px;
+    height: auto;
+  }
+
+  .care-badge {
+      font-size: 0.75rem;
       font-weight: 600;
-      font-size: 1.1rem;
-    }
+      padding: 0.25rem 0.6rem;
+      border-radius: 5px;
+      background: var(--care-yellow);
+      color: var(--care-yellow-text);
+  }
+  .care-badge-yellow { background: var(--care-yellow); color: var(--care-yellow-text); }
 
-    .aitd-legend-item {
-      margin-right: 0.5rem;
-    }
+  .care-panes {
+      display: flex;
+      min-height: 500px;
+  }
 
-    .aitd-legend-color {
-      width: 1rem;
-      height: 1rem;
-      display: inline-block;
-    }
+  .care-underline {
+    text-decoration: underline;
+  }
 
-    .aitd-legend-user {
-      background-color: var(--aitd-user-highlight);
-      border: 1px solid var(--aitd-blue);
-    }
+  .care-line-through {
+    text-decoration: line-through;
+  }
 
-    .aitd-legend-bot {
-      background-color: var(--aitd-bot-highlight);
-      border: 1px solid var(--aitd-yellow);
-    }
+  .care-editor-pane {
+      border-right: 1px solid var(--care-border);
+      flex: 1 1 65%;
+  }
 
-    .aitd-body {
-      padding: 1rem 1rem;
-    }
-
-    .aitd-seg-user {
-      background: var(--aitd-user-highlight);
-    }
-
-    .aitd-seg-bot {
-      background: var(--aitd-bot-highlight);
-    }
-
-    .aitd-text-body {
-      background-color: #f3f3f3;
-      border: 1px solid var(--aitd-border);
-      border-radius: 0.5rem;
-      min-height: 30rem;
+  .care-editor-text {
       padding: 0.5rem 0.5rem;
-      color: var(--aitd-muted);
-      font-size: 0.9rem;
-    }
+      font-size: 0.8rem;
+  }
+
+  .care-query-popup {
+    display: none;
+    align-items: center;
+    z-index: 999;
+    max-width: 300px;
+    position: absolute;
+    background: #fff;
+    border: 1.5px solid var(--care-border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 14px rgba(47,111,237,0.18);
+    gap: 0.5rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .care-query-text {
+    overflow-x: hidden;
+    white-space: nowrap;
+  }
+
+  .care-sidebar-pane {
+      flex: 1 1 35%;
+      background: #fdfdfd;
+      padding: 0rem 1rem;
+  }
+
+  .care-sidebar-header {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--care-border);
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+  }
+
+  .care-sidebar-title {
+      font-weight: 500;
+  }
+  .care-response-box{
+      border: 1px solid var(--care-border);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.5rem;
+      min-height: 200px;
+      color: #333;
+      background: #f3f3f3;
+      font-size: 0.8rem;
+  }
+  .care-response-placeholder { color: var(--care-muted); }
+
+  .care-generating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--care-muted);
+    font-style: italic;
+  }
+
+  .care-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #d8d8d8;
+    border-top-color: var(--care-blue);
+    border-radius: 50%;
+    display: inline-block;
+    animation: care-spin 0.8s linear infinite;
+  }
+
+  @keyframes care-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .care-accept-reject {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0rem;
+  }
+
+  .care-accept-reject-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    background: #f3f3f3;
+    border: 1px solid #d6d4d4;
+    border-radius: 5px;
+    padding: 0.4rem 0;
+    cursor: pointer;
+    color: #7e7e7e;
+  }
+
+  .is-active-accept {
+    background: #3fae5c;
+    border-color: #2f8a46;
+    color: #fff;
+  }
+
+  .is-active-reject {
+    background: #d64545;
+    border-color: #a32626;
+    color: #fff;
+  }
+
+  .care-editor-text .care-ins-user { background: var(--care-user-highlight); border-radius: 2px; }
+  .care-editor-text .care-ins-bot { background: var(--care-bot-highlight); border-radius: 2px; }
+  .care-editor-text .care-fade-out {
+    background: #ffd3d3;
+    text-decoration: line-through;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  .care-answer-accepted {background: #53b46d; border-radius: 2px; color: #0a4118}
+  .care-answer-rejected {background: #c85555; border-radius: 2px; color: #600a0a}
+  .care-answer-pending {
+    background: var(--care-pending-highlight);
+    border-radius: 2px;
+    color: #3a2f63;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+
+  .aitd-replay {
+      --aitd-border: #e2e2e2;
+      --aitd-text: #1f1f1f;
+      --aitd-muted: #8a8a8a;
+      --aitd-yellow: #fce98a;
+      --aitd-yellow-text: #6b5800;
+      --aitd-green: #3fae5c;
+      --aitd-blue: #2f6fed;
+      --aitd-user-highlight: #d9ecff;
+      --aitd-bot-highlight: #ffe8c2;
+      --aitd-toolbar-menu: #888;
+
+      min-height: 200px;
+      min-width: 1000px;
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid var(--aitd-border);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: var(--aitd-text);
+      overflow: hidden;
+      display: flex;
+      min-height: 500px;
+  }
+  
+
+  .aitd-replay-settings {
+    flex: 0 0 30%;
+    border-right: 1px solid var(--aitd-border);
+    background: #fff;
+    overflow: hidden;
+    text-align: center;
+    padding: 1rem 0rem;
+  }
+
+  .aitd-option {
+    text-align: center;
+    border: 1px solid var(--aitd-border);
+    cursor: pointer;
+    width: 80%;
+    border-radius: 8px;
+    margin: 0.2rem 0.1rem;
+    background-color: #ffffff;
+    font-size: 1rem;
+  }
+
+  .aitd-replay-pane {
+      flex: 1 1 auto;
+      background: #fff;
+  }
+
+  .aitd-pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid var(--aitd-border);
+  }
+
+  .aitd-pane-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .aitd-legend-item {
+    margin-right: 0.5rem;
+  }
+
+  .aitd-legend-color {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+  }
+
+  .aitd-legend-user {
+    background-color: var(--aitd-user-highlight);
+    border: 1px solid var(--aitd-blue);
+  }
+
+  .aitd-legend-bot {
+    background-color: var(--aitd-bot-highlight);
+    border: 1px solid var(--aitd-yellow);
+  }
+
+  .aitd-body {
+    padding: 1rem 1rem;
+  }
+
+  .aitd-seg-user {
+    background: var(--aitd-user-highlight);
+  }
+
+  .aitd-seg-bot {
+    background: var(--aitd-bot-highlight);
+  }
+
+  .aitd-text-body {
+    background-color: #f3f3f3;
+    border: 1px solid var(--aitd-border);
+    border-radius: 0.5rem;
+    min-height: 30rem;
+    padding: 0.5rem 0.5rem;
+    color: var(--aitd-muted);
+    font-size: 0.9rem;
+  }
+
 </style>

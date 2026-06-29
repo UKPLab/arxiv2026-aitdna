@@ -7,7 +7,7 @@
         "contentLevel",
         "intentLevel",
         "membershipLevel",
-        // "boundaryLevel",
+        "boundaryLevel",
     ]
     const notionsData = [];
     const textBody = document.getElementById("aitdTextBody");
