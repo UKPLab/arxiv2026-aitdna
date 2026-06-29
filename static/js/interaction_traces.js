@@ -1,29 +1,6 @@
 (function () { 
-
-    let interactions = [
-        { offset: 0, operationType: "insert", span: 4, text: "YOLO", createdAt: 0.5, user: "User" },
-        { offset: 4, operationType: "insert", span: 4, text: " is ", createdAt: 1.1, user: "User" },
-        { offset: 8, operationType: "insert", span: 1, text: "a", createdAt: 1.4, user: "User" },
-        { id: 5, query: "continue this sentence about object detection", model: "gpt-5.2",
-        nlpService: "text_continuation", selectionIndex: 9, selectionLength: 0,
-        requestType: "editor", createdAt: 3.4, temperature: 1 },
-        { requestId: 5, accepted: "t",
-        response: " popular object detection framework.",
-        createdAt: 12.3, decidedAt: 15.6, success: "t" },
-        { offset: 9, operationType: "insert", span: 36, text: " popular object detection framework.", createdAt: 16.6, user: "Bot"},
-        { offset: 0, operationType: "delete", span: 4, text: null, createdAt: 17.3, user: "User" },
-        { offset: 0, operationType: "insert", span: 4, text: "YOLOv8", createdAt: 18.9, user: "User" },
-        { id: 9, query: "make the YOLOv8 description more concise", model: "gpt-5.2",
-        nlpService: "rewrite", selectionIndex: 0, selectionLength: 46,
-        requestType: "editor", createdAt: 20.0, temperature: 1 },
-        { requestId: 9, accepted: "t",
-        response: "YOLOv8 is a fast object detector.",
-        createdAt: 28.0, decidedAt: 30.5, success: "t" },
-        { offset: 12, operationType: "delete", span: 35, text: null,
-          createdAt: 30.7, user: "Bot"},
-        { offset: 12, operationType: "insert", span: 21, text: "fast object detector.",
-          createdAt: 31.4, user: "Bot"}
-    ];
+    $.getJSON("sessions/session_7/acephal/Task 2.2: Creative Writing/edits.json", function (data) {
+      const interactions = data;
   
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
@@ -222,7 +199,7 @@
     }
 
     function scaledDelay(delta) {
-      return Math.sqrt(delta) * 600;
+      return Math.sqrt(delta) * 300;
     }
 
     function scheduleAll() {
@@ -230,7 +207,9 @@
       let prevCreatedAt = interactions[0].createdAt;
 
       interactions.forEach((ev, i) => {
+        console.log("ev");
         if (!isPlaying) return;
+        console.log(ev);
         if (deferredOpIndices.has(i)) {
           prevCreatedAt = ev.createdAt;
           return;
@@ -303,5 +282,7 @@
       clearAllTimeouts();
       isPlaying = false;
       resetReplay();
-    })
+    });
+  })
+  
 })();

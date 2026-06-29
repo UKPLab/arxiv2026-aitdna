@@ -32,10 +32,17 @@
     function constructText(data, notion, nextText) {
         if (["documentLevel", "spanLevel", "boundaryLevel"].includes(notion)) return data;
         if (notion === "membershipLevel") { 
-            if (data == "(" || [")", ",", "."].includes(nextText)) return data;
+            if (data == "(" || [")", ",", ".", "?"].includes(nextText)) return data;
+            if (data === "causality" && nextText === "Causality") return data + "\n\n";
+            if (data === "?") return data + "\n\n";
+            console.log("Data: ", data);
+            if (data === "movement.") return data + "\n\n";
+            if (data === "universe") return data + "\n.";
             if (nextText === null) return data + ".";
             return data + " ";
         }
+        console.log("slice: ", data.slice(-5, -1));
+        if (data.slice(-1) === "?" || data.slice(-9, -1) === "movement") return data + "\n\n";
         return data + " ";
     }
 

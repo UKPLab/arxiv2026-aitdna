@@ -49,10 +49,10 @@
     <div class="topnav-inner">
       <a href="#" class="topnav-title">Your AI image is not mine</a>
       <div class="topnav-links">
-        <a href="#abstract">Abstract</a>
-        <a href="#careReplaySection">Human-AI Demo</a>
-        <a href="#aitdNotions">AITD Demo</a>
-        <a href="#BibTeX">Citation</a>
+        <a href="#abstract" class="topnav-link">Abstract</a>
+        <a href="#careReplaySection" class="topnav-link">Human-AI Demo</a>
+        <a href="#aitdNotions" class="topnav-link">AITD Demo</a>
+        <a href="#BibTeX" class="topnav-link">Citation</a>
       </div>
     </div>
   </nav>
@@ -344,7 +344,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #FAF6EF;
+    background: #ebcd99;
     border-bottom: 1px solid var(--care-border);
   }
 
@@ -380,11 +380,14 @@
     position: relative;
   }
 
+  .topnav-link {
+    padding: 0.2rem 0.4rem;
+  }
+
   .topnav-links a:hover {
     color: #3a322a;
     background: rgba(58, 50, 42, 0.05);
     border-radius: 8px;
-    padding: 0.2rem 0.2rem;
   }
 
   .author-name {
@@ -727,6 +730,7 @@
     padding: 0.5rem 0.5rem;
     color: var(--aitd-muted);
     font-size: 0.9rem;
+    white-space: pre-wrap;
   }
 
 </style>
