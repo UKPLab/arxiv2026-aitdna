@@ -50,9 +50,27 @@
       return html;
     }
 
+    function compute_new_html_batch(highlightRanges) {
+      let html = "";
+      let cursor = 0;
+      highlightRanges.forEach(({start, end}) => {
+        html += escapeHtml(text.slice(cursor, start));
+        const mid = escapeHtml(text.slice(start, end));
+        html += '<span class="' + cls + '">' + mid + '</span>';
+        cursor = end;
+      })
+      html += escapeHtml(text.slice(cursor));
+      return html;
+    }
+
     function renderEditor(highlightRange) {
         editorText.innerHTML = compute_new_html(docText, highlightRange);
         updateWordCount();
+    }
+
+    function renderEditorBatch(highlightRanges) {
+      editorText.innerHTML = compute_new_html_batch(highlightRanges);
+      updateWordCount();
     }
 
     function escapeHtml(str) {
@@ -95,32 +113,36 @@
       rejectBtn.classList.remove("is-active-reject");
     }
 
-    function applyDeferredOp(op) {
-      if (op.operationType === "insert") {
-        docText = docText.slice(0, op.offset) + op.text + docText.slice(op.offset);
-        const cls = op.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
-        renderEditor({ start: op.offset, end: op.offset + op.text.length, cls });
+    function applyDeferredOpsBatch(ops) {
+      ranges = [];
+      ops.forEach(op => {
+        console.log("Op: ", op);
+        if (op.operationType === "insert") {
+          const offset = op.offset;
+          docText = docText.slice(0, offset) + op.text + docText.slice(offset);
+          console.log("Text: ", docText);
+          ranges.push({ start: offset, end: offset + op.text.length})
 
-      } else if (op.operationType === "delete") {
-        const end = op.offset + op.span;
-        renderEditor({ start: op.offset, end, cls: 'care-fade-out' });
-        docText = docText.slice(0, op.offset) + docText.slice(end);
-      }
+        } else if (op.operationType === "delete") {
+          const offset = op.offset;
+          const end = offset + op.span;
+          docText = docText.slice(0, offset) + docText.slice(end);
+          console.log("Text: ", docText);
+        }
+      });
+      if (ranges.length > 0) {
+          const start = Math.min(...ranges.map(r => r.start));
+          const end = Math.max(...ranges.map(r => r.end));
+          renderEditor({ start, end, cls: "care-ins-bot" });
+        } else renderEditor();
     }
 
     function scheduleDeferredOps(ops, decidedAt, baseDelayMs) {
-      let prevCreatedAt = decidedAt;
-      let cumulative = baseDelayMs;
-      ops.forEach(op => {
-        const gapMs = scaledDelay(op.createdAt - prevCreatedAt);
-        cumulative += gapMs;
-        prevCreatedAt = op.createdAt;
-        const t = setTimeout(() => {
-          applyDeferredOp(op);
-        }, cumulative);
-        timeouts.push(t);
-      });
-      return cumulative - baseDelayMs;
+      const t = setTimeout(() => {
+        applyDeferredOpsBatch(ops);
+      }, baseDelayMs);
+      timeouts.push(t);
+      return baseDelayMs;
     }
 
     function applyEvent(ev, idx) {
@@ -198,7 +220,7 @@
     }
 
     function scaledDelay(delta) {
-      return Math.sqrt(delta) * 300;
+      return Math.sqrt(delta) * 200;
     }
 
     function scheduleAll() {
@@ -206,9 +228,7 @@
       let prevCreatedAt = interactions[0].createdAt;
 
       interactions.forEach((ev, i) => {
-        console.log("ev");
         if (!isPlaying) return;
-        console.log(ev);
         if (deferredOpIndices.has(i)) {
           prevCreatedAt = ev.createdAt;
           return;
