@@ -1,5 +1,5 @@
 (function () { 
-    $.getJSON("sessions/session_7/acephal/Task 2.2: Creative Writing/edits.json", function (data) {
+    $.getJSON("static/showcase_data/interaction/edits.json", function (data) {
       const interactions = data;
   
     const editorText = document.getElementById("careEditorText");

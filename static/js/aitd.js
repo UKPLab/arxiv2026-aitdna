@@ -1,5 +1,5 @@
 (function() {
-    const notionsPath = "notions/";
+    const notionsPath = "static/showcase/data/aitd";
     const notions = [
         "spanLevel",
         "documentLevel",
