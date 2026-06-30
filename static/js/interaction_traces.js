@@ -1,133 +1,6 @@
 (function () { 
   $.getJSON("static/showcase_data/interaction/edits.json", function (data) {
     const interactions = data;
-    // const interactions = [
-    // {
-    //     "id": 1,
-    //     "documentId": 1,
-    //     "offset": 0,
-    //     "operationType": "insert",
-    //     "span": 15,
-    //     "text": "The cat sat on ",
-    //     "attributes": null,
-    //     "createdAt": 0.5,
-    //     "user": "User"
-    // },
-    // {
-
-    //     "id": 2,
-    //     "documentId": 1,
-    //     "offset": 15,
-    //     "operationType": "insert",
-    //     "span": 8,
-    //     "text": "the mat.",
-    //     "attributes": null,
-    //     "createdAt": 1.2,
-    //     "user": "User"
-    // },
-    // {
-    //     "id": "q1",
-    //     "documentEditId": 2,
-    //     "query": "Make it more vivid",
-    //     "model": "qwen2.5:7b",
-    //     "nlpService": "text_revision",
-    //     "selectionIndex": 0,
-    //     "selectionLength": 23,
-    //     "createdAt": 4.0,
-    //     "fullQuery": "n/a",
-    //     "temperature": 1
-    // },
-    // {
-    //     "id": 100,
-    //     "requestId": "q1",
-    //     "accepted": "t",
-    //     "response": "The sleek black cat curled up lazily on the sun-warmed mat.",
-    //     "createdAt": 5.1,
-    //     "success": "t",
-    //     "decidedAt": 6.4
-    // },
-    // {
-    //     "id": 101,
-    //     "documentId": 1,
-    //     "offset": 0,
-    //     "operationType": "retain",
-    //     "span": 4,
-    //     "text": null,
-    //     "createdAt": 6.5,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 103,
-    //     "documentId": 1,
-    //     "offset": 4,
-    //     "operationType": "insert",
-    //     "span": 12,
-    //     "text": "sleek black ",
-    //     "createdAt": 6.6,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 101,
-    //     "documentId": 1,
-    //     "offset": 16,
-    //     "operationType": "retain",
-    //     "span": 4,
-    //     "text": null,
-    //     "createdAt": 6.5,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 103,
-    //     "documentId": 1,
-    //     "offset": 20,
-    //     "operationType": "delete",
-    //     "span": 4,
-    //     "text": null,
-    //     "createdAt": 6.6,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 103,
-    //     "documentId": 1,
-    //     "offset": 20,
-    //     "operationType": "insert",
-    //     "span": 17,
-    //     "text": "curled up lazily ",
-    //     "createdAt": 6.6,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 101,
-    //     "documentId": 1,
-    //     "offset": 37,
-    //     "operationType": "retain",
-    //     "span": 7,
-    //     "text": null,
-    //     "createdAt": 6.5,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 106,
-    //     "documentId": 1,
-    //     "offset": 44,
-    //     "operationType": "delete",
-    //     "span": 4,
-    //     "text": null,
-    //     "attributes": null,
-    //     "createdAt": 6.8,
-    //     "user": "Bot"
-    // },
-    // {
-    //     "id": 105,
-    //     "documentId": 1,
-    //     "offset": 44,
-    //     "operationType": "insert",
-    //     "span": 15,
-    //     "text": "sun-warmed mat.",
-    //     "createdAt": 6.75,
-    //     "user": "Bot"
-    // },
-// ]
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
     const resetBtn = document.getElementById("careResetBtn");
@@ -241,20 +114,14 @@
     }
 
     function applyDeferredOpsBatch(ops) {
-      let offset = 0;
       ranges = [];
       ops.forEach(op => {
-        if (op.operationType === "retain") {
-          offset = op.offset + op.span;
-        } else if (op.operationType === "insert") {
-          const text = op.text;
-          docText = docText.slice(0, offset) + text + docText.slice(offset);
-          ranges.push({ start: offset, end: offset + text.length})
-          offset += text.length;
-
+        if (op.operationType === "insert") {
+          docText = docText.slice(0, op.offset) + op.text + docText.slice(op.offset);
+          ranges.push({ start: op.offset, end: op.offset + op.text.length})
         } else if (op.operationType === "delete") {
-          const end = offset + op.span;
-          docText = docText.slice(0, offset) + docText.slice(end);
+          const end = op.offset + op.span;
+          docText = docText.slice(0, op.offset) + docText.slice(end);
         }
       });
       if (ranges.length > 0) renderEditorBatch(ranges)
