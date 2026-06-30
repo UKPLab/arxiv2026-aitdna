@@ -1,6 +1,133 @@
 (function () { 
   $.getJSON("static/showcase_data/interaction/edits.json", function (data) {
     const interactions = data;
+    // const interactions = [
+    // {
+    //     "id": 1,
+    //     "documentId": 1,
+    //     "offset": 0,
+    //     "operationType": "insert",
+    //     "span": 15,
+    //     "text": "The cat sat on ",
+    //     "attributes": null,
+    //     "createdAt": 0.5,
+    //     "user": "User"
+    // },
+    // {
+
+    //     "id": 2,
+    //     "documentId": 1,
+    //     "offset": 15,
+    //     "operationType": "insert",
+    //     "span": 8,
+    //     "text": "the mat.",
+    //     "attributes": null,
+    //     "createdAt": 1.2,
+    //     "user": "User"
+    // },
+    // {
+    //     "id": "q1",
+    //     "documentEditId": 2,
+    //     "query": "Make it more vivid",
+    //     "model": "qwen2.5:7b",
+    //     "nlpService": "text_revision",
+    //     "selectionIndex": 0,
+    //     "selectionLength": 23,
+    //     "createdAt": 4.0,
+    //     "fullQuery": "n/a",
+    //     "temperature": 1
+    // },
+    // {
+    //     "id": 100,
+    //     "requestId": "q1",
+    //     "accepted": "t",
+    //     "response": "The sleek black cat curled up lazily on the sun-warmed mat.",
+    //     "createdAt": 5.1,
+    //     "success": "t",
+    //     "decidedAt": 6.4
+    // },
+    // {
+    //     "id": 101,
+    //     "documentId": 1,
+    //     "offset": 0,
+    //     "operationType": "retain",
+    //     "span": 4,
+    //     "text": null,
+    //     "createdAt": 6.5,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 103,
+    //     "documentId": 1,
+    //     "offset": 4,
+    //     "operationType": "insert",
+    //     "span": 12,
+    //     "text": "sleek black ",
+    //     "createdAt": 6.6,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 101,
+    //     "documentId": 1,
+    //     "offset": 16,
+    //     "operationType": "retain",
+    //     "span": 4,
+    //     "text": null,
+    //     "createdAt": 6.5,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 103,
+    //     "documentId": 1,
+    //     "offset": 20,
+    //     "operationType": "delete",
+    //     "span": 4,
+    //     "text": null,
+    //     "createdAt": 6.6,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 103,
+    //     "documentId": 1,
+    //     "offset": 20,
+    //     "operationType": "insert",
+    //     "span": 17,
+    //     "text": "curled up lazily ",
+    //     "createdAt": 6.6,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 101,
+    //     "documentId": 1,
+    //     "offset": 37,
+    //     "operationType": "retain",
+    //     "span": 7,
+    //     "text": null,
+    //     "createdAt": 6.5,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 106,
+    //     "documentId": 1,
+    //     "offset": 44,
+    //     "operationType": "delete",
+    //     "span": 4,
+    //     "text": null,
+    //     "attributes": null,
+    //     "createdAt": 6.8,
+    //     "user": "Bot"
+    // },
+    // {
+    //     "id": 105,
+    //     "documentId": 1,
+    //     "offset": 44,
+    //     "operationType": "insert",
+    //     "span": 15,
+    //     "text": "sun-warmed mat.",
+    //     "createdAt": 6.75,
+    //     "user": "Bot"
+    // },
+// ]
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
     const resetBtn = document.getElementById("careResetBtn");
@@ -50,13 +177,13 @@
       return html;
     }
 
-    function compute_new_html_batch(highlightRanges) {
+    function compute_new_html_batch(text, highlightRanges) {
       let html = "";
       let cursor = 0;
       highlightRanges.forEach(({start, end}) => {
         html += escapeHtml(text.slice(cursor, start));
         const mid = escapeHtml(text.slice(start, end));
-        html += '<span class="' + cls + '">' + mid + '</span>';
+        html += '<span class="care-ins-bot">' + mid + '</span>';
         cursor = end;
       })
       html += escapeHtml(text.slice(cursor));
@@ -69,7 +196,7 @@
     }
 
     function renderEditorBatch(highlightRanges) {
-      editorText.innerHTML = compute_new_html_batch(highlightRanges);
+      editorText.innerHTML = compute_new_html_batch(docText, highlightRanges);
       updateWordCount();
     }
 
@@ -114,27 +241,24 @@
     }
 
     function applyDeferredOpsBatch(ops) {
+      let offset = 0;
       ranges = [];
       ops.forEach(op => {
-        console.log("Op: ", op);
-        if (op.operationType === "insert") {
-          const offset = op.offset;
-          docText = docText.slice(0, offset) + op.text + docText.slice(offset);
-          console.log("Text: ", docText);
-          ranges.push({ start: offset, end: offset + op.text.length})
+        if (op.operationType === "retain") {
+          offset = op.offset + op.span;
+        } else if (op.operationType === "insert") {
+          const text = op.text;
+          docText = docText.slice(0, offset) + text + docText.slice(offset);
+          ranges.push({ start: offset, end: offset + text.length})
+          offset += text.length;
 
         } else if (op.operationType === "delete") {
-          const offset = op.offset;
           const end = offset + op.span;
           docText = docText.slice(0, offset) + docText.slice(end);
-          console.log("Text: ", docText);
         }
       });
-      if (ranges.length > 0) {
-          const start = Math.min(...ranges.map(r => r.start));
-          const end = Math.max(...ranges.map(r => r.end));
-          renderEditor({ start, end, cls: "care-ins-bot" });
-        } else renderEditor();
+      if (ranges.length > 0) renderEditorBatch(ranges)
+      else renderEditor();
     }
 
     function scheduleDeferredOps(ops, decidedAt, baseDelayMs) {
@@ -147,9 +271,10 @@
 
     function applyEvent(ev, idx) {
       if (ev.operationType === "insert") {
-          docText = docText.slice(0, ev.offset) + ev.text + docText.slice(ev.offset);
+          const text = ev.text;
+          docText = docText.slice(0, ev.offset) + text + docText.slice(ev.offset);
           const cls = ev.user === 'Bot' ? 'care-ins-bot' : 'care-ins-user';
-          renderEditor({ start: ev.offset, end: ev.offset + ev.text.length, cls });
+          renderEditor({ start: ev.offset, end: ev.offset + text.length, cls });
 
       } else if (ev.operationType === "delete") {
           const end = ev.offset + ev.span;
