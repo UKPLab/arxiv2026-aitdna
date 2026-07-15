@@ -38,9 +38,12 @@
             if (data === "movement.") return data + "\n\n";
             if (data === "universe") return data + "\n.";
             if (nextText === null) return data + ".";
+            if (nextText && nextText.includes("Its")) return data + "  ";
             return data + " ";
         }
+        console.log("Next text: ", nextText);
         if (data.slice(-1) === "?" || data.slice(-9, -1) === "movement") return data + "\n\n";
+        if (nextText && nextText.includes("Its")) return data + "  ";
         return data + " ";
     }
 

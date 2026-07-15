@@ -274,14 +274,90 @@
       
       <div class="aitd-replay">
         <div class="aitd-replay-settings">
-          <button class="aitd-option" id="spanLevel">Span Level</button>
-          <button class="aitd-option" id="documentLevel">Document Level</button>
-          <button class="aitd-option" id="sentenceLevel">Sentence Level</button>
-          <button class="aitd-option" id="boundaryLevel">Boundary Level</button>
-          <button class="aitd-option" id="intentLevel">Intent Level</button>
-          <button class="aitd-option" id="contentLevel">Content Level</button>
-          <button class="aitd-option" id="membershipLevel">Membership Level</button>
-        </div>
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="spanLevel">Span Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>Character-level spans of same authorship.</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="documentLevel">Document Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>One label per document (AI if >=50% of tokens are AI-generated).</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="sentenceLevel">Sentence Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>One label per sentence (AI if >=50% of tokens are AI-generated).</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="boundaryLevel">Boundary Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>Divide text into N parts by finding most optimal split indices (here N=5).</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="intentLevel">Intent Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>Sentence-level labels based on a pre-defined set of rules specifying allowed and forbidden types of user queries.</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="contentLevel">Content Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>Sentence-level labels based on a pre-defined set of rules specifying allowed and forbidden types of model output.</p>
+            </div>
+          </div>
+
+          <div class="aitd-notion-item">
+            <div class="aitd-notion-header">
+              <button class="aitd-toggle-btn">
+                <i class="fas fa-caret-right"></i>
+              </button>
+              <button class="aitd-option" id="membershipLevel">Membership Level</button>
+            </div>
+            <div class="aitd-notion-desc">
+              <p>Token-level labels based on occurence of N-grams in a reference human corpus (N=2).</p>
+            </div>
+          </div>
+</div>
 
         <div class="aitd-replay-pane">
           <div class="aitd-pane-header">
@@ -342,7 +418,14 @@
 
 <script type="text/javascript" src="static/js/interaction_traces.js"></script>
 <script type="text/javascript" src="static/js/aitd.js"></script>
-
+<script>
+  const btns = document.querySelectorAll('.aitd-toggle-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+    btn.closest('.aitd-notion-item').classList.toggle('is-open');
+  });
+});
+</script>
 <style>
 
   body {
@@ -616,10 +699,12 @@
 
 .care-legend-user {
   background: var(--care-user-highlight);
+  border: 1px solid #2f6fed;
 }
 
 .care-legend-bot {
   background: var(--care-bot-highlight);
+  border: 1px solid #d39956;
 }
 
   .care-query-text {
@@ -764,11 +849,55 @@
     padding: 1rem 0rem;
   }
 
+  .aitd-notion-item {
+    vertical-align: middle;
+    position: relative;
+  }
+
+  .aitd-toggle-btn {
+    position: absolute;
+    left: 1%;
+    top: 15%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border: 1px solid transparent;
+    background-color: #fff;
+  }
+
+.aitd-notion-item.is-open .aitd-toggle-btn {
+  transform: rotate(90deg);
+}
+
+.aitd-notion-desc {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  width: 85%;
+  margin: 0 auto;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: grid-template-rows 0.3s ease, border-color 0.3s ease;
+  padding: 0 0.5rem;
+  text-align: left;
+}
+
+.aitd-notion-item.is-open .aitd-notion-desc {
+  grid-template-rows: 1fr;
+  border-color: var(--aitd-border);
+}
+
+.aitd-notion-desc p {
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
   .aitd-option {
     text-align: center;
     border: 1px solid var(--aitd-border);
     cursor: pointer;
-    width: 80%;
+    width: 85%;
     border-radius: 8px;
     margin: 0.2rem 0.1rem;
     background-color: #ffffff;
@@ -811,7 +940,7 @@
 
   .aitd-legend-bot {
     background-color: var(--aitd-bot-highlight);
-    border: 1px solid var(--aitd-yellow);
+    border: 1px solid #d39956;
   }
 
   .aitd-body {
