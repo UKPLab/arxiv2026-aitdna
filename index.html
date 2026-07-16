@@ -37,6 +37,11 @@
   href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="static/css/index.css">
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/atelier-cave-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/tex.min.js"></script>
+  <script>hljs.highlightAll();</script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
   <script defer src="static/js/fontawesome.all.min.js"></script>
@@ -288,9 +293,8 @@
     <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">AITD Notions</h2>
         <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
-            Interactive visualization of our AITD definitions.
+            Interactive visualization of our AITD definitions.*
         </p>
-      
       <div class="aitd-replay">
         <div class="aitd-replay-settings">
           <div class="aitd-notion-item">
@@ -379,7 +383,7 @@
               <p>Token-level labels based on occurence of N-grams in a reference human corpus (N=2).</p>
             </div>
           </div>
-</div>
+        </div>
 
         <div class="aitd-replay-pane">
           <div class="aitd-pane-header">
@@ -401,16 +405,37 @@
           </div>
         </div>
       </div>
+      <div class="content has-text-justified">
+          <p>*Authorship-ID-notion is not presented as we have a limited number of human texts per author.</p>
+        </div>
     </div>
   </div>
 </section>
 
+<section class="section" id="usage">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Get Started</h2>
+    <pre><code class="language-python python-usage">
+  from datasets import load_dataset
+  from torch.utils.data import DataLoader
 
+  # available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"
+  ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
+  loader = DataLoader(ds, batch_size=1, collate_fn=lambda dp: dp)
+  for batch in loader:
+      for text in batch:
+          data = text["data"]
+          metadata = text["metadata"]
+          for snippet in data:
+              print(snippet)
+    </code></pre>
+  </div>
+</section>
       
-<section class="section" id="BibTeX">
+<section class="section hero is-light" id="BibTeX">
     <div class="container is-max-desktop content">
-      <h2 class="title">Citation</h2>
-      <pre><code>@article{dycke2026youraitextmine,
+      <h2 class="title is-3 has-text-centered">Citation</h2>
+      <pre><code class="language-tex">@article{dycke2026youraitextmine,
       title={'Your AI Text is not Mine': Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions}, 
       author={Nils Dycke and Marina Sakharova and Nico Daheim and Iryna Gurevych},
       year={2026},
@@ -859,7 +884,7 @@
       --aitd-toolbar-menu: #888;
 
       height: 40rem;
-      width: 60rem;
+      width: 65rem;
       margin: 0 auto;
       border: 1px solid var(--aitd-border);
       border-radius: 10px;
@@ -1023,6 +1048,15 @@
 
   .abstract-full.show {
     display: block;
+  }
+
+  .python-usage {
+    border-radius: 10px;
+    border: 1px solid #20052a5c;
+  }
+
+  #usage pre {
+    background: none;
   }
 
 </style>
