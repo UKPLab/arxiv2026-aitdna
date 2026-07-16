@@ -339,7 +339,8 @@
             </div>
             <div class="aitd-notion-desc">
               <p>Divide text into N parts by finding most optimal split indices (here N=5).
-                Optimality here means the balance between segment length and purity.</p>
+                Optimality here means the balance between segment length and purity.
+                A segment is labeled AI if ≥ 50% of tokens are AI-generated.</p>
             </div>
           </div>
 
@@ -984,6 +985,16 @@
 
   .aitd-seg-bot {
     background: var(--aitd-bot-highlight);
+  }
+
+  .aitd-seg-user-boundary {
+    background: var(--aitd-user-highlight);
+    border-left: 2px solid #2f6fed;
+  }
+
+  .aitd-seg-bot-boundary {
+    background: var(--aitd-bot-highlight);
+    border-left: 2px solid #d39956;
   }
 
   .aitd-text-body {

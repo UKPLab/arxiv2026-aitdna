@@ -22,8 +22,9 @@
 
     function renderSegments(segments, notion) {
         const html = segments.map((seg, i) => {
-            const cls = seg.author === "User"? "aitd-seg-user" : "aitd-seg-bot";
+            let cls = seg.author === "User"? "aitd-seg-user" : "aitd-seg-bot";
             const nextText = i < segments.length - 1 ? segments[i + 1].text : null;
+            if (notion === "boundaryLevel") cls += "-boundary";
             return '<span class="aitd-seg ' + cls + '">' + constructText(seg.text, notion, nextText) + '</span>';
         }).join("");
         textBody.innerHTML = html;
