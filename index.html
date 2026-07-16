@@ -25,7 +25,7 @@
 
 
   <title>Your AI Text is not Mine</title>
-  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="static/images/aitdna_logo.png">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
   rel="stylesheet">
 
@@ -47,7 +47,7 @@
 <body>
   <nav class="topnav" id="topnav">
     <div class="topnav-inner">
-      <a href="#" class="topnav-title">Your AI image is not mine</a>
+      <a href="#" class="topnav-title">Your AI text is not mine</a>
       <div class="topnav-links">
         <a href="#abstract" class="topnav-link">Abstract</a>
         <a href="#careReplaySection" class="topnav-link">Human-AI Demo</a>
@@ -134,21 +134,61 @@
           </div>
         </div>
       </div>
-      <!-- <div class="container is-max-desktop">
-        <p align="center">
-          <img src='static/images/aitdna_logo.png' width='200'/>
-        </p>
-      </div> -->
+    </div>
+  </div>
+</section>
+
+<section class="section hero is-light" id="abstract">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">About the Project</h2>
+        <div class="content has-text-justified">
+          <p>
+            <i>Your AI Text is not Mine</i> presents a taxonomy of AI text notions.
+            We review the existing literature on AITD, structure commonly used notions, and introduce new ones.
+            To study these notions, we collect AITDNA - a dataset of human-AI interactions with detailed text edit and AI interaction history.
+            On this page, we presents insights into our dataset and AITD notions.
+          </p>
+        </div>
+        <div class="container has-text-justified">
+          <p align="center">
+            <img src='static/images/YATISM.png'/>
+          </p>
+        </div>
+        
+        <div class="content has-text-justified">
+          <button class="abstract-toggle" onclick="toggleAbstract()">
+            <i class="fa fa-chevron-down"></i> Full abstract
+          </button>
+          <div class="abstract-full" id="abstractFull">
+            <p>
+              Although it is generally agreed that AI-generated text poses a broad societal risk, there is no common understanding in the AI-generated text detection 
+              literature on what constitutes harmful use. Rather, existing datasets and approaches often define their own criteria and make their own assumptions, 
+              sometimes implicitly, and often only loosely related to real-world needs and applications.<br>
+              To address this gap, we here systematically define various 
+              notions of AI-generated text and their characteristics. To study these, we collect AITDNA - a new benchmark of human-machine co-constructed texts that 
+              is annotated with detailed genesis information, such as the entire edit and AI-interaction history. We benchmark various machine-generated text detectors
+              and find that they often only perform well for specific notions but not as broad detectors. We release code and data publicly. 
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- Paper abstract -->
-<section class="section hero is-light" id="abstract">
+<!-- <section class="section hero is-light" id="abstract">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">Abstract</h2>
+        <div class="container has-text-justified">
+        <p align="center">
+          <img src='static/images/aitdna_logo.png' width='200'/>
+        </p>
+      </div>
         <div class="content has-text-justified">
           <p>
             Although it is generally agreed that AI-generated text poses a broad societal risk, there is no common understanding in the AI-generated text detection 
@@ -162,7 +202,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
 <!-- End paper abstract -->
 
 <section class="section" id="careReplaySection">
@@ -282,7 +322,8 @@
               <button class="aitd-option" id="spanLevel">Span Level</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>Character-level spans of same authorship.</p>
+              <p>Character-level spans of same authorship, corresponding to original text edits.
+                All our notions are derived from this one.</p>
             </div>
           </div>
 
@@ -294,7 +335,7 @@
               <button class="aitd-option" id="documentLevel">Document Level</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>One label per document (AI if >=50% of tokens are AI-generated).</p>
+              <p>One label per document (AI if ≥ 50% of tokens are AI-generated).</p>
             </div>
           </div>
 
@@ -306,7 +347,7 @@
               <button class="aitd-option" id="sentenceLevel">Sentence Level</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>One label per sentence (AI if >=50% of tokens are AI-generated).</p>
+              <p>One label per sentence (AI if ≥ 50% of tokens are AI-generated).</p>
             </div>
           </div>
 
@@ -318,7 +359,8 @@
               <button class="aitd-option" id="boundaryLevel">Boundary Level</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>Divide text into N parts by finding most optimal split indices (here N=5).</p>
+              <p>Divide text into N parts by finding most optimal split indices (here N=5).
+                Optimality here means the balance between segment length and purity.</p>
             </div>
           </div>
 
@@ -374,8 +416,7 @@
             </span>
           </div>
           <div class="aitd-body">
-            <div class="aitd-text-body" id="aitdTextBody">
-              <p class="aitd-empty-state">Select a notion on the left to see an example.</p>
+            <div class="aitd-text-body" id="aitdTextBody">Select a notion on the left to see an example.
             </div>
           </div>
         </div>
@@ -422,9 +463,19 @@
   const btns = document.querySelectorAll('.aitd-toggle-btn');
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
-    btn.closest('.aitd-notion-item').classList.toggle('is-open');
+      btn.closest('.aitd-notion-item').classList.toggle('is-open');
+    });
   });
-});
+
+  function toggleAbstract() {
+    const abstract = document.getElementById("abstractFull");
+    const btn = document.querySelector(".abstract-toggle");
+    const show = !abstract.classList.contains("show");
+    abstract.classList.toggle("show");
+
+    btn.innerHTML = show ? '<i class="fa fa-chevron-up"></i> Hide abstract' 
+    : '<i class="fa fa-chevron-down"></i> Full abstract';
+  }
 </script>
 <style>
 
@@ -964,6 +1015,23 @@
     color: var(--aitd-muted);
     font-size: 0.9rem;
     white-space: pre-wrap;
+  }
+
+  .abstract-toggle {
+      background: none; border: 1px solid #bcc2cb; border-radius: 8px;
+      padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+      color: rgba(0,0,0,.7);
+    }
+  
+  .abstract-toggle:hover { border-color: var(--care-text); }
+
+  .abstract-full {
+    display: none;
+  }
+
+  .abstract-full.show {
+    display: block;
   }
 
 </style>
