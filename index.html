@@ -37,11 +37,7 @@
   href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="static/css/index.css">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/atelier-cave-light.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/tex.min.js"></script>
-  <script>hljs.highlightAll();</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
   <script defer src="static/js/fontawesome.all.min.js"></script>
@@ -415,33 +411,59 @@
 <section class="section" id="usage">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Get Started</h2>
-    <pre><code class="language-python python-usage">
-  from datasets import load_dataset
-  from torch.utils.data import DataLoader
+    <div class="content has-text-justified">
+      <p>
+        A quick-start guide to loading and working with AITDNA.
+      </p>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot yellow"></span>
+        <span class="code-dot green"></span>
+      </div>
+      <pre>
+        <span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+        <span class="kw">from</span> torch.utils.data <span class="kw">import</span> DataLoader
 
-  # available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"
-  ds = load_dataset("UKPLab/AITDNA", name="sentence", split="test")
-  loader = DataLoader(ds, batch_size=1, collate_fn=lambda dp: dp)
-  for batch in loader:
-      for text in batch:
-          data = text["data"]
-          metadata = text["metadata"]
-          for snippet in data:
-              print(snippet)
-    </code></pre>
+        <span class="cm"># available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"</span>
+        ds = <span class="fn">load_dataset</span>(<span class="str">"UKPLab/AITDNA"</span>, name=<span class="str">"sentence"</span>, split=<span class="str">"test"</span>)
+        loader = <span class="fn">DataLoader</span>(ds, batch_size=<span class="num">1</span>, collate_fn=<span class="kw">lambda</span> dp: dp)
+        <span class="kw">for</span> batch <span class="kw">in</span> loader:
+            <span class="kw">for</span> text <span class="kw">in</span> batch:
+                data = text[<span class="str">"data"</span>]
+                metadata = text[<span class="str">"metadata"</span>]
+                <span class="kw">for</span> snippet <span class="kw">in</span> data:
+                    <span class="fn">print</span>(snippet)
+      </pre>
+    </div>
   </div>
 </section>
-      
+
+
 <section class="section hero is-light" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title is-3 has-text-centered">Citation</h2>
-      <pre><code class="language-tex">@article{dycke2026youraitextmine,
-      title={'Your AI Text is not Mine': Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions}, 
-      author={Nils Dycke and Marina Sakharova and Nico Daheim and Iryna Gurevych},
-      year={2026},
-      journal={arXiv preprint arXiv:2606.04906},
-      url={https://arxiv.org/abs/2606.04906}
-}</code></pre>
+      <div class="content has-text-justified">
+        <p>
+          Please cite our paper if you make use of AITDNA:
+        </p>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot yellow"></span>
+          <span class="code-dot green"></span>
+        </div>
+        <pre>@article{dycke2026youraitextmine,
+          title={'Your AI Text is not Mine': Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions}, 
+          author={Nils Dycke and Marina Sakharova and Nico Daheim and Iryna Gurevych},
+          year={2026},
+          journal={arXiv preprint arXiv:2606.04906},
+          url={https://arxiv.org/abs/2606.04906}
+        }</pre>
+      </div>
+      </div>
     </div>
 </section>
 
@@ -1053,10 +1075,54 @@
   .python-usage {
     border-radius: 10px;
     border: 1px solid #20052a5c;
+    background-color: #f3f2f0;
+
   }
 
-  #usage pre {
-    background: none;
+  .latex-usage {
+    border-radius: 10px;
+    border: 1px solid #20052a5c;
+    background-color: #f3f2f0;
   }
+
+
+  .code-block {
+  background: #1e1e2e;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin: 8px auto 0;
+  max-width: 60rem;
+  border: 0.1rem solid #1e293b;
+
+}
+.code-block-header {
+  background: #2a2a3e;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.code-dot { width: 12px; height: 12px; border-radius: 50%; }
+.code-dot.red { background: #ff5f57; }
+.code-dot.yellow { background: #ffbd2e; }
+.code-dot.green { background: #27c93f; }
+
+.code-block pre {
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: #1e293b;
+  margin: 0;
+}
+
+
+.code-block .kw { color: #9333ea; font-weight: 600; }
+.code-block .fn { color: #2563eb; font-weight: 600; }
+.code-block .str { color: #15803d; }
+.code-block .cm { color: #64748b; font-style: italic; }
+.code-block .num { color: #b45309; }
 
 </style>
