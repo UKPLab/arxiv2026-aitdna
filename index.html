@@ -37,7 +37,6 @@
   href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="static/css/index.css">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/latex.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
   <script defer src="static/js/fontawesome.all.min.js"></script>
@@ -48,7 +47,7 @@
 <body>
   <nav class="topnav" id="topnav">
     <div class="topnav-inner">
-      <a href="#" class="topnav-title">Your AI text is not mine</a>
+      <a href="#" class="topnav-title">Your AI Text is not Mine</a>
       <div class="topnav-links">
         <a href="#abstract" class="topnav-link">Abstract</a>
         <a href="#careReplaySection" class="topnav-link">Human-AI Demo</a>
@@ -63,8 +62,8 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">’Your AI Text is not Mine’: Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions</h1>
-            <div class="is-size-5 publication-authors">
+            <h1 class="title is-1 publication-title webpage-text">’Your AI Text is not Mine’: Redefining and Evaluating AI-generated Text Detection under Realistic Assumptions</h1>
+            <div class="is-size-5 publication-authors webpage-text">
               <!-- Paper authors -->
               <span class="author-block">
                 <a href="https://scholar.google.com/citations?user=UxhfZPUAAAAJ&hl=de" target="_blank"><span class="author-name">Nils Dycke</span></a><sup>*1,2</sup>,</span>
@@ -78,7 +77,7 @@
                   </span>
                   </div>
 
-                  <div class="is-size-5 publication-authors">
+                  <div class="is-size-5 publication-authors webpage-text">
                     <span class="author-block">Arxiv Preprint 2026</span>
 
                     <span class="eql-cntrb"><small><br><sup>1</sup>Ubiquitous Knowledge Processing Lab (UKP Lab), TU Darmstadt</small></span>
@@ -298,7 +297,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="spanLevel">Span Level</button>
+              <button class="aitd-option" id="spanLevel">Span-Level</button>
             </div>
             <div class="aitd-notion-desc">
               <p>Character-level spans of same authorship, corresponding to original text edits.
@@ -311,7 +310,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="documentLevel">Document Level</button>
+              <button class="aitd-option" id="documentLevel">Document-Level</button>
             </div>
             <div class="aitd-notion-desc">
               <p>One label per document (AI if ≥ 50% of tokens are AI-generated).</p>
@@ -323,7 +322,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="sentenceLevel">Sentence Level</button>
+              <button class="aitd-option" id="sentenceLevel">Sentence-Level</button>
             </div>
             <div class="aitd-notion-desc">
               <p>One label per sentence (AI if ≥ 50% of tokens are AI-generated).</p>
@@ -335,7 +334,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="boundaryLevel">Boundary Level</button>
+              <button class="aitd-option" id="boundaryLevel">Boundary-Level</button>
             </div>
             <div class="aitd-notion-desc">
               <p>Divide text into N parts by finding most optimal split indices (here N=5).
@@ -349,7 +348,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="intentLevel">Intent Level</button>
+              <button class="aitd-option" id="intentLevel">Intent-Based</button>
             </div>
             <div class="aitd-notion-desc">
               <p>Sentence-level labels based on a pre-defined set of rules specifying allowed and forbidden types of user queries.</p>
@@ -361,7 +360,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="contentLevel">Content Level</button>
+              <button class="aitd-option" id="contentLevel">Content-Based</button>
             </div>
             <div class="aitd-notion-desc">
               <p>Sentence-level labels based on a pre-defined set of rules specifying allowed and forbidden types of model output.</p>
@@ -373,7 +372,7 @@
               <button class="aitd-toggle-btn">
                 <i class="fas fa-caret-right"></i>
               </button>
-              <button class="aitd-option" id="membershipLevel">Membership Level</button>
+              <button class="aitd-option" id="membershipLevel">Membership-Based</button>
             </div>
             <div class="aitd-notion-desc">
               <p>Token-level labels based on occurence of N-grams in a reference human corpus (N=2).</p>
@@ -506,10 +505,15 @@
 </script>
 <style>
 
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  .webpage-text {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  background: #fff;
+  }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #fff;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  background: #fff;
     color: #3a322a;
   }
 
@@ -592,7 +596,7 @@
       border-radius: 10px;
       background: #fff;
       box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; */
       color: var(--care-text);
       overflow: hidden;
   }
@@ -912,7 +916,7 @@
       border-radius: 10px;
       background: #fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; */
       color: var(--aitd-text);
       overflow: hidden;
       display: flex;
@@ -980,7 +984,8 @@
     border-radius: 8px;
     margin: 0.2rem 0.1rem;
     background-color: #ffffff;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   .aitd-replay-pane {
@@ -1058,7 +1063,7 @@
   .abstract-toggle {
       background: none; border: 1px solid #bcc2cb; border-radius: 8px;
       padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;
-      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+      cursor: pointer; transition: all 0.2s;
       color: rgba(0,0,0,.7);
     }
   
