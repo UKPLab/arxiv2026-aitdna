@@ -3,6 +3,7 @@
     const interactions = data;
     const editorText = document.getElementById("careEditorText");
     const playBtn = document.getElementById("carePlayBtn");
+    const stopBtn = document.getElementById("careStopBtn");
     const resetBtn = document.getElementById("careResetBtn");
     const queryPopup = document.getElementById("careQueryPopup");
     const queryText = document.getElementById("careQueryText");
@@ -13,10 +14,76 @@
     const timer = document.getElementById("careTimer");
     const wordCount = document.getElementById("careWordCount");
 
-    let isPlaying = false;
+    let hasStarted = false;
+    let isPaused = false;
     let docText = "";
-    let timeouts = [];
     let pendingQueries = {};
+
+    // ---- Virtual clock: single source of truth for scheduling ----------
+    // Everything schedules against a "virtual time" that only advances
+    // while playing. Pausing simply stops the ticker; nothing that was
+    // scheduled can fire until resume() restarts it. This avoids having
+    // to individually pause/resume dozens of independent setTimeouts.
+    const clock = (function () {
+      let running = false;
+      let virtualTime = 0;
+      let lastTick = null;
+      let pending = []; // { time, fn, id }
+      let nextId = 1;
+      let intervalHandle = null;
+
+      function tick() {
+        const now = performance.now();
+        if (lastTick !== null) {
+          virtualTime += now - lastTick;
+        }
+        lastTick = now;
+
+        if (pending.length === 0) return;
+        const due = pending.filter(p => p.time <= virtualTime);
+        if (due.length) {
+          pending = pending.filter(p => p.time > virtualTime);
+          due.sort((a, b) => a.time - b.time);
+          due.forEach(p => p.fn());
+        }
+      }
+
+      return {
+        start() {
+          if (running) return;
+          running = true;
+          lastTick = performance.now();
+          intervalHandle = setInterval(tick, 30);
+        },
+        pause() {
+          if (!running) return;
+          running = false;
+          clearInterval(intervalHandle);
+          intervalHandle = null;
+          lastTick = null;
+        },
+        reset() {
+          running = false;
+          if (intervalHandle) clearInterval(intervalHandle);
+          intervalHandle = null;
+          virtualTime = 0;
+          lastTick = null;
+          pending = [];
+        },
+        schedule(delay, fn) {
+          const id = nextId++;
+          pending.push({ time: virtualTime + Math.max(0, delay), fn, id });
+          return id;
+        },
+        cancel(id) {
+          pending = pending.filter(p => p.id !== id);
+        },
+        isRunning() {
+          return running;
+        }
+      };
+    })();
+    // ----------------------------------------------------------------------
 
     const deferredOpIndices = new Set();
     interactions.forEach((ev, i) => {
@@ -94,8 +161,7 @@
         if (onComplete) onComplete();
         return;
       }
-      const t = setTimeout(() => typeIntoPopup(text, idx + 1, onComplete), 20);
-      timeouts.push(t);
+      clock.schedule(20, () => typeIntoPopup(text, idx + 1, onComplete));
     }
 
     function constructAnswerText(rsp, req) {
@@ -114,7 +180,7 @@
     }
 
     function applyDeferredOpsBatch(ops) {
-      ranges = [];
+      let ranges = [];
       ops.forEach(op => {
         if (op.operationType === "insert") {
           docText = docText.slice(0, op.offset) + op.text + docText.slice(op.offset);
@@ -129,11 +195,9 @@
     }
 
     function scheduleDeferredOps(ops, decidedAt, baseDelayMs) {
-      const t = setTimeout(() => {
+      clock.schedule(baseDelayMs, () => {
         applyDeferredOpsBatch(ops);
-      }, baseDelayMs);
-      timeouts.push(t);
-      return baseDelayMs;
+      });
     }
 
     function applyEvent(ev, idx) {
@@ -165,7 +229,7 @@
         const accepted = ev.accepted === "t";
         const answerText = constructAnswerText(ev, req);
 
-        const t = setTimeout(() => {
+        clock.schedule(1000, () => {
           responseBox.innerHTML = "";
           const respSpan = document.createElement("span");
           const html =  compute_new_html(answerText,{
@@ -177,7 +241,7 @@
           responseBox.appendChild(respSpan);
 
           const decisionDelayMs = scaledDelay(ev.decidedAt - ev.createdAt);
-          const tm = setTimeout(() => {
+          clock.schedule(decisionDelayMs, () => {
             const activeSpan = document.getElementById("careActiveAnswerSpan");
             if (activeSpan) {
               const cls = accepted ? "care-answer-accepted": "care-answer-rejected";
@@ -200,15 +264,16 @@
               const ops = findDeferredOpsForResponse(idx).map(o => o.ev);
               scheduleDeferredOps(ops, ev.decidedAt, 0);
             }
-          }, decisionDelayMs);
-          timeouts.push(tm);
-        }, 1000);
-        timeouts.push(t);
+          });
+        });
       }
     }
 
     function finishPlayback() {
-        isPlaying = false;
+        clock.pause();
+        hasStarted = false;
+        isPaused = false;
+        setButtonsToPlay();
     }
 
     function scaledDelay(delta) {
@@ -220,7 +285,6 @@
       let prevCreatedAt = interactions[0].createdAt;
 
       interactions.forEach((ev, i) => {
-        if (!isPlaying) return;
         if (deferredOpIndices.has(i)) {
           prevCreatedAt = ev.createdAt;
           return;
@@ -229,15 +293,13 @@
         cumulativeMs += scaledDelay(delta);
         prevCreatedAt = ev.createdAt;
 
-        const t = setTimeout(() => {
+        clock.schedule(cumulativeMs, () => {
           applyEvent(ev, i);
           timer.textContent = formatTimer(ev.createdAt);
-          timeouts.push(t);
           if (i === interactions.length - 1) {
               finishPlayback();
           }
-        }, cumulativeMs);
-        timeouts.push(t);
+        });
 
         if (ev.requestId !== undefined && ev.decidedAt !== undefined) {
           const decisionDelayMs = scaledDelay(ev.decidedAt - ev.createdAt);
@@ -257,17 +319,12 @@
       })
     }
 
-    function clearAllTimeouts() {
-      timeouts.forEach(t => clearTimeout(t));
-      timeouts = [];
-    }
-
     function resetReplay() {
       docText = "";
       renderEditor();
       responseBox.innerHTML = "";
       timer.textContent = "00:00";
-      
+
       responseBox.innerHTML = "";
       const placeholder = document.createElement("span");
       placeholder.className = "care-response-placeholder";
@@ -281,18 +338,45 @@
       rejectBtn.classList.remove("is-active-reject");
     }
 
-  playBtn.addEventListener("click", () => {
-    if (isPlaying) {
-        return;
+    function setButtonsToPlay() {
+      playBtn.style.display = "";
+      stopBtn.style.display = "none";
     }
-    isPlaying = true;
-    scheduleAll();
-  });
 
-  resetBtn.addEventListener("click", () => {
-    clearAllTimeouts();
-    isPlaying = false;
-    resetReplay();
+    function setButtonsToStop() {
+      playBtn.style.display = "none";
+      stopBtn.style.display = "";
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (hasStarted && !isPaused) {
+        return; // already running
+      }
+
+      if (!hasStarted) {
+        hasStarted = true;
+        scheduleAll();
+      }
+      isPaused = false;
+      clock.start();
+      setButtonsToStop();
+    });
+
+    stopBtn.addEventListener("click", () => {
+      if (!hasStarted || isPaused) {
+        return;
+      }
+      isPaused = true;
+      clock.pause();
+      setButtonsToPlay();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      clock.reset();
+      hasStarted = false;
+      isPaused = false;
+      resetReplay();
+      setButtonsToPlay();
+    });
   });
-});
 })();
