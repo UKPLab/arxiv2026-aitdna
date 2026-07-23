@@ -20,7 +20,7 @@
     let pendingQueries = {};
 
     const MERGE_DELAY_MS = 800;
-    const POST_MERGE_GAP_MS = 1000;
+    const POST_MERGE_GAP_MS = 800;
 
     // ---- Virtual clock: single source of truth for scheduling ----------
     // Everything schedules against a "virtual time" that only advances
@@ -189,6 +189,8 @@
       placeholder.id = "careResponsePlaceholder";
       placeholder.textContent = "The model answer will be displayed here";
       responseBox.appendChild(placeholder);
+      acceptBtn.classList.remove("is-active-accept");
+      rejectBtn.classList.remove("is-active-reject");
     }
 
     function applyDeferredOpsBatch(ops) {
@@ -279,6 +281,10 @@
             if (accepted) {
               const ops = findDeferredOpsForResponse(idx).map(o => o.ev);
               scheduleDeferredOps(ops, ev.decidedAt, MERGE_DELAY_MS);
+            } else {
+              clock.schedule(MERGE_DELAY_MS, () => {
+                resetResponseBox();
+              });
             }
           });
         });
