@@ -19,8 +19,8 @@
     let docText = "";
     let pendingQueries = {};
 
-    const MERGE_DELAY_MS = 800;
-    const POST_MERGE_GAP_MS = 500;
+    const MERGE_DELAY_MS = 600;
+    const POST_MERGE_GAP_MS = 350;
     
     // ---- Virtual clock: single source of truth for scheduling ----------
     // Everything schedules against a "virtual time" that only advances
@@ -86,7 +86,6 @@
         }
       };
     })();
-    // ----------------------------------------------------------------------
 
     const deferredOpIndices = new Set();
     interactions.forEach((ev, i) => {
@@ -239,6 +238,14 @@
         ev.textContent = editorText.textContent;
         pendingQueries[ev.id] = ev;
 
+        if (ev.selectionLength) {
+          renderEditor({
+            start: ev.selectionIndex,
+            end: ev.selectionIndex + ev.selectionLength,
+            cls: "care-selection"
+          });
+        }
+
         queryPopup.style.display = "flex";
         queryText.textContent = "";
         let query = "";
@@ -247,7 +254,10 @@
         } else {
           if (ev.nlpService === "text_continuation") query = "Continue this text";
         }
-          typeIntoPopup(query, 0, showGenerating);
+        typeIntoPopup(query, 0, () => {
+          renderEditor();
+          showGenerating();
+        });
 
 
       } else if (ev.requestId !== undefined) {
