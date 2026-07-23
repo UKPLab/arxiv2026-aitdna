@@ -307,6 +307,7 @@
         hasStarted = false;
         isPaused = false;
         setButtonsToPlay();
+        renderEditor();
     }
 
     function scaledDelay(delta) {
