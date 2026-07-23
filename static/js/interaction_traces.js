@@ -19,6 +19,9 @@
     let docText = "";
     let pendingQueries = {};
 
+    const MERGE_DELAY_MS = 800;
+    const POST_MERGE_GAP_MS = 1000;
+
     // ---- Virtual clock: single source of truth for scheduling ----------
     // Everything schedules against a "virtual time" that only advances
     // while playing. Pausing simply stops the ticker; nothing that was
@@ -179,6 +182,15 @@
       rejectBtn.classList.remove("is-active-reject");
     }
 
+    function resetResponseBox() {
+      responseBox.innerHTML = "";
+      const placeholder = document.createElement("span");
+      placeholder.className = "care-response-placeholder";
+      placeholder.id = "careResponsePlaceholder";
+      placeholder.textContent = "The model answer will be displayed here";
+      responseBox.appendChild(placeholder);
+    }
+
     function applyDeferredOpsBatch(ops) {
       let ranges = [];
       ops.forEach(op => {
@@ -197,6 +209,7 @@
     function scheduleDeferredOps(ops, decidedAt, baseDelayMs) {
       clock.schedule(baseDelayMs, () => {
         applyDeferredOpsBatch(ops);
+        resetResponseBox();
       });
     }
 
@@ -217,11 +230,14 @@
 
         queryPopup.style.display = "flex";
         queryText.textContent = "";
+        let query = "";
         if (ev.query !== null) {
-          typeIntoPopup(ev.query, 0, showGenerating);
+          query = ev.query;
         } else {
-          showGenerating();
+          if (ev.nlpService === "text_continuation") query = "Continue this text";
         }
+          typeIntoPopup(query, 0, showGenerating);
+
 
       } else if (ev.requestId !== undefined) {
         queryPopup.style.display = "none";
@@ -262,7 +278,7 @@
             }
             if (accepted) {
               const ops = findDeferredOpsForResponse(idx).map(o => o.ev);
-              scheduleDeferredOps(ops, ev.decidedAt, 0);
+              scheduleDeferredOps(ops, ev.decidedAt, MERGE_DELAY_MS);
             }
           });
         });
@@ -306,6 +322,8 @@
           cumulativeMs += 1000 + decisionDelayMs;
 
           if (ev.accepted === "t") {
+            cumulativeMs += MERGE_DELAY_MS;
+
             const ops = findDeferredOpsForResponse(i).map(o => o.ev);
             let prevOpCreatedAt = ev.decidedAt;
             let opsSpanMs = 0;
@@ -314,6 +332,8 @@
               prevOpCreatedAt = opEv.createdAt;
             });
             cumulativeMs += opsSpanMs;
+
+            cumulativeMs += POST_MERGE_GAP_MS;
           }
         }
       })
@@ -322,15 +342,9 @@
     function resetReplay() {
       docText = "";
       renderEditor();
-      responseBox.innerHTML = "";
       timer.textContent = "00:00";
 
-      responseBox.innerHTML = "";
-      const placeholder = document.createElement("span");
-      placeholder.className = "care-response-placeholder";
-      placeholder.id = "careResponsePlaceholder";
-      placeholder.textContent = "The model answer will be displayed here";
-      responseBox.appendChild(placeholder);
+      resetResponseBox();
 
       queryPopup.style.display = "none";
 
