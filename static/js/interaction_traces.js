@@ -20,8 +20,8 @@
     let pendingQueries = {};
 
     const MERGE_DELAY_MS = 800;
-    const POST_MERGE_GAP_MS = 800;
-
+    const POST_MERGE_GAP_MS = 500;
+    
     // ---- Virtual clock: single source of truth for scheduling ----------
     // Everything schedules against a "virtual time" that only advances
     // while playing. Pausing simply stops the ticker; nothing that was
@@ -182,8 +182,17 @@
       rejectBtn.classList.remove("is-active-reject");
     }
 
+    function scrollHighlightIntoView(highlightEl) {
+      if (!highlightEl) return;
+      const boxRect = responseBox.getBoundingClientRect();
+      const highlightRect = highlightEl.getBoundingClientRect();
+      const offset = highlightRect.top - boxRect.top + responseBox.scrollTop;
+      responseBox.scrollTop = Math.max(0, offset);
+    }
+
     function resetResponseBox() {
       responseBox.innerHTML = "";
+      responseBox.scrollTop = 0;
       const placeholder = document.createElement("span");
       placeholder.className = "care-response-placeholder";
       placeholder.id = "careResponsePlaceholder";
@@ -257,6 +266,7 @@
           respSpan.innerHTML = html;
           respSpan.id = "careActiveAnswerSpan";
           responseBox.appendChild(respSpan);
+          scrollHighlightIntoView(respSpan.querySelector(".care-answer-pending"));
 
           const decisionDelayMs = scaledDelay(ev.decidedAt - ev.createdAt);
           clock.schedule(decisionDelayMs, () => {
@@ -269,6 +279,7 @@
                 cls
               })
               activeSpan.innerHTML = finalHtml;
+              scrollHighlightIntoView(activeSpan.querySelector("." + cls));
               acceptBtn.classList.remove("is-active-accept");
               rejectBtn.classList.remove("is-active-reject");
 
