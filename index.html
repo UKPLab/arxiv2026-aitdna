@@ -21,7 +21,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <!-- Keywords for your paper to be indexed by-->
   <meta name="keywords" content="KEYWORDS SHOULD BE PLACED HERE">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8">
 
 
   <title>Your AI Text is not Mine</title>
@@ -50,8 +50,8 @@
       <a href="#" class="topnav-title">Your AI Text is not Mine</a>
       <div class="topnav-links">
         <a href="#abstract" class="topnav-link">Abstract</a>
-        <a href="#careReplaySection" class="topnav-link">Human-AI Demo</a>
-        <a href="#aitdNotions" class="topnav-link">AITD Demo</a>
+        <a href="#careReplaySection" class="topnav-link">AITDNA Demo</a>
+        <a href="#aitdNotions" class="topnav-link">AITD Notions</a>
         <a href="#usage" class="topnav-link">Get Started</a>
         <a href="#BibTeX" class="topnav-link">Citation</a>
       </div>
@@ -153,7 +153,7 @@
               <li><b>AITDNA</b>: To study these notions, we collect a dataset of <b>human-AI interactions</b>
             with detailed <b>text edit</b> and <b>AI interaction</b> history.</li>
               <li><b>Benchmarking detectors</b>: We evaluate different <b>dataset-detector-notion</b> combinations and
-            find the performance <b>varies significantly</b> depending on the chosen notion.</li>
+            find that the performance <b>varies significantly</b> depending on the chosen notion.</li>
             </ol>
             On this page, we present insights into our dataset and AITD notions.
           </p>
@@ -187,11 +187,21 @@
 
 <section class="section" id="careReplaySection">
     <div class="container is-max-desktop">
-        <h2 class="title is-3 has-text-centered">Interaction Replay</h2>
-        <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
-            Human–AI co-writing session from AITDNA, replayed step by step. Press Play to visualize.
-        </p>
-
+      <h2 class="title is-3 has-text-centered">AITDNA Demo</h2>
+      <!-- <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
+          Human–AI co-writing session from AITDNA, replayed step by step. Press Play to visualize.
+      </p> -->
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column"> -->
+        <div class="column is-four-fifths">
+          <div class="content has-text-justified">
+            <p>AITDNA is a dataset of over <b>350 texts</b> from <b>99 authors</b>, including detailed <b>human-AI interactions</b> during writing,
+              covering two interaction types, multiple <b>genres</b>, <b>LLMs</b>, and <b>generation temperatures</b>.<br>
+              Here, we present a co-writing session from AITDNA, replayed step by step. Press <b>Play</b> to visualize.
+            </p>
+          </div>
+        </div>
+      </div>
       <div class="care-replay">
         <!--Topbar-->
         <div class="care-toolbar">
@@ -262,7 +272,7 @@
                 </span>
                 <span class="care-legend-item">
                   <span class="care-legend-color care-legend-bot"></span>
-                  Bot
+                  LLM
                 </span>
               </div>
 
@@ -291,9 +301,22 @@
 <section class="section hero is-light" id="aitdNotions">
     <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">AITD Notions</h2>
-        <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
+        <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="content has-text-justified">
+            <p>
+              Our work formalizes existing and new <b>notions of AI-generated text</b>.
+              We classify the notions based on their <b>normative standards</b> (how much of AI use is allowed)
+              and <b>hidden assumptions</b> (constraints on a text's genesis).<br>
+              In this playground, you can check out the definitions and examples.
+            </p>
+          </div>
+        </div>
+      </div>
+        <!-- <p class="has-text-centered" style="margin-bottom: 2rem; color: #555;">
             Interactive visualization of our AITD definitions.*
-        </p>
+        </p> -->
+
       <div class="aitd-replay">
         <div class="aitd-replay-settings">
           <div class="aitd-notion-item">
@@ -305,7 +328,7 @@
             </div>
             <div class="aitd-notion-desc">
               <p>Character-level spans of same authorship, corresponding to original text edits.
-                All our notions are derived from this one.</p>
+                This is the starting point: all our notions are derived from this one.</p>
             </div>
           </div>
 
@@ -341,7 +364,7 @@
               <button class="aitd-option" id="boundaryLevel">Boundary-Level</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>Divide text into N parts by finding most optimal split indices (here N=5).
+              <p>The text is divided into N segments by finding most optimal split indices (here N=5).
                 Optimality here means the balance between segment length and purity.
                 A segment is labeled AI if ≥ 50% of tokens are AI-generated.</p>
             </div>
@@ -379,7 +402,7 @@
               <button class="aitd-option" id="membershipLevel">Membership-Based</button>
             </div>
             <div class="aitd-notion-desc">
-              <p>Token-level labels based on occurence of N-grams in a reference human corpus (N=2).</p>
+              <p>Token-level labels based on the occurrence of N-grams in a reference human corpus (N=2).</p>
             </div>
           </div>
         </div>
@@ -394,7 +417,7 @@
               </span>
               <span class="aitd-legend-item">
                 <span class="aitd-legend-color aitd-legend-bot"></span>
-                Bot
+                LLM
               </span>
             </span>
           </div>
@@ -426,19 +449,18 @@
         <span class="code-dot green"></span>
       </div>
       <pre>
-        <span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
-        <span class="kw">from</span> torch.utils.data <span class="kw">import</span> DataLoader
+    <span class="kw">from</span> datasets <span class="kw">import</span> load_dataset
+    <span class="kw">from</span> torch.utils.data <span class="kw">import</span> DataLoader
 
-        <span class="cm"># available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"</span>
-        ds = <span class="fn">load_dataset</span>(<span class="str">"UKPLab/AITDNA"</span>, name=<span class="str">"sentence"</span>, split=<span class="str">"test"</span>)
-        loader = <span class="fn">DataLoader</span>(ds, batch_size=<span class="num">1</span>, collate_fn=<span class="kw">lambda</span> dp: dp)
-        <span class="kw">for</span> batch <span class="kw">in</span> loader:
-            <span class="kw">for</span> text <span class="kw">in</span> batch:
-                data = text[<span class="str">"data"</span>]
-                metadata = text[<span class="str">"metadata"</span>]
-                <span class="kw">for</span> snippet <span class="kw">in</span> data:
-                    <span class="fn">print</span>(snippet)
-      </pre>
+    <span class="cm"># available notions: "original", "sentence", "document", "boundary", "intent", "content", "span", "membership"</span>
+    ds = <span class="fn">load_dataset</span>(<span class="str">"UKPLab/AITDNA"</span>, name=<span class="str">"sentence"</span>, split=<span class="str">"test"</span>)
+    loader = <span class="fn">DataLoader</span>(ds, batch_size=<span class="num">1</span>, collate_fn=<span class="kw">lambda</span> dp: dp)
+    <span class="kw">for</span> batch <span class="kw">in</span> loader:
+        <span class="kw">for</span> text <span class="kw">in</span> batch:
+            data = text[<span class="str">"data"</span>]
+            metadata = text[<span class="str">"metadata"</span>]
+            <span class="kw">for</span> snippet <span class="kw">in</span> data:
+                <span class="fn">print</span>(snippet)</pre>
     </div>
   </div>
 </section>
@@ -599,7 +621,7 @@
       border: 1px solid var(--care-border);
       border-radius: 10px;
       background: #fff;
-      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;;
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
       /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; */
       color: var(--care-text);
       overflow: hidden;
@@ -924,11 +946,12 @@
       border: 1px solid var(--aitd-border);
       border-radius: 10px;
       background: #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
       /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; */
       color: var(--aitd-text);
       overflow: hidden;
       display: flex;
+      margin-bottom: 2rem;
   }
   
 
