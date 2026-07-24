@@ -31,7 +31,10 @@
     }
 
     function constructText(data, notion, nextText) {
-        if (["documentLevel", "spanLevel", "boundaryLevel"].includes(notion)) return data;
+        if (["documentLevel", "spanLevel", "boundaryLevel"].includes(notion)) {
+            if (nextText === null) return data.trim();
+            return data;
+        } 
         if (notion === "membershipLevel") { 
             if (data == "(" || [")", ",", ".", "?"].includes(nextText)) return data;
             if (data === "causality" && nextText === "Causality") return data + "\n\n";
