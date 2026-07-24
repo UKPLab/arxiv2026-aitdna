@@ -1132,15 +1132,40 @@
 /* ===== Mobile responsive overrides ===== */
 @media (max-width: 780px) {
 
-  body {
-    zoom: 1;
+  html {
+    font-size: 14.5px; /* shrinks all rem-based text/spacing site-wide */
   }
 
-  /* Top navigation: allow horizontal scroll instead of clipping links */
+  body {
+    zoom: 1;
+    overflow-x: hidden;
+  }
+
+  /* Page title: shrink and stop it from overflowing its column */
+  .title.is-1.publication-title {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  /* Top navigation: keep it on one line, truncate the title instead of
+     letting it wrap and get clipped by the fixed-height bar, and let the
+     link row scroll horizontally so every link stays reachable */
   .topnav-inner {
-    padding: 0 1rem;
-    gap: 1rem;
-    justify-content: flex-start;
+    height: auto;
+    min-height: 3.25rem;
+    padding: 0.5rem 1rem;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+  }
+
+  .topnav-title {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 0 1 auto;
   }
 
   .topnav-links {
@@ -1148,8 +1173,9 @@
     justify-content: flex-start;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    gap: 1.25rem;
+    gap: 1.1rem;
     scrollbar-width: none;
+    flex: 0 0 auto;
   }
 
   .topnav-links::-webkit-scrollbar {
@@ -1158,84 +1184,25 @@
 
   .topnav-links a {
     flex: 0 0 auto;
+    font-size: 0.85rem;
   }
 
-  .title.is-1.publication-title {
-    font-size: 1.6rem;
-    line-height: 1.3;
-  }
-
-  /* CARE demo: stack panes, drop the fixed 65rem width */
-  .care-replay {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .care-panes {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .care-editor-pane {
-    border-right: none;
-    border-bottom: 1px solid var(--care-border);
-  }
-
-  .care-editor-text {
-    min-height: 15rem;
-  }
-
-  .care-sidebar-pane {
-    padding: 0.5rem 1rem 1rem;
-  }
-
-  .care-response-box {
-    height: 12rem;
-  }
-
-  .care-legend {
-    position: static;
-    margin: 0.5rem 0 0.5rem 0.5rem;
-    width: fit-content;
-  }
-
-  .care-toolbar {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .care-subtoolbar {
-    flex-wrap: wrap;
-    row-gap: 0.5rem;
-  }
-
-  /* AITD notion playground: stack sidebar above content */
+  /* CARE demo & AITD playground: these are built at a fixed 65rem width with
+     an internal two-column (horizontal) layout. Rather than restructuring
+     them into a stacked layout, scale the whole widget down with zoom so it
+     keeps its original side-by-side design and just fits the screen. */
+  .care-replay,
   .aitd-replay {
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+    zoom: calc((100vw - 2rem) / 65rem);
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .aitd-replay-settings {
-    flex: none;
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--aitd-border);
-  }
-
-  .aitd-text-body {
-    min-height: 15rem;
-  }
-
-  /* Citation / usage code blocks: never exceed viewport width */
+  /* Citation / usage code blocks: same fluid scale-down approach */
   .code-block {
-    max-width: 100%;
-    margin: 8px 1rem 0;
-  }
-
-  .code-block pre {
-    font-size: 0.75rem;
-    padding: 16px;
+    zoom: calc((100vw - 2rem) / 60rem);
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
