@@ -1204,6 +1204,7 @@
     width: 100%;
     max-width: 100%;
     margin: 0;
+    height: 45rem;
   }
 
   .care-toolbar {
@@ -1227,9 +1228,6 @@
     padding: 0.2rem 0.4rem;
   }
 
-  .care-panes {
-    height: 24rem;
-  }
 
   .care-subtoolbar {
     flex-wrap: wrap;
@@ -1252,7 +1250,7 @@
   }
 
   .care-editor-text {
-    font-size: 0.65rem;
+    font-size: 0.5rem;
     padding: 0.4rem;
   }
 
@@ -1269,8 +1267,8 @@
   }
 
   .care-response-box {
-    height: 16rem;
-    font-size: 0.62rem;
+    height: 25rem;
+    font-size: 0.5rem;
     padding: 0.4rem;
   }
 
@@ -1299,25 +1297,52 @@
      with extra height so the notion list has room to breathe */
   .aitd-replay {
     width: 100%;
-    height: 30rem;
+    height: 45rem;
     margin: 0;
   }
 
   .aitd-replay-settings {
-    padding: 0.6rem 0;
+    flex: 0 0 44%;
+    padding: 0.5rem 0.2rem;
+  }
+
+  /* The desktop design overlaps the caret button on top-left of the pill
+     button, which only works with a wide column. On mobile the column is
+     much narrower, so turn this into a real flex row instead so the two
+     buttons sit next to each other and never overlap. */
+  .aitd-notion-header {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0 0.3rem;
+  }
+
+  .aitd-notion-item {
+    margin-bottom: 0.15rem;
   }
 
   .aitd-toggle-btn {
-    font-size: 0.6rem;
+    position: static;
+    flex: 0 0 auto;
+    font-size: 0.5rem;
+    padding: 0.15rem 0.3rem;
   }
 
   .aitd-option {
-    font-size: 0.65rem;
-    padding: 0.3rem 0.2rem;
+    flex: 1 1 auto;
+    width: auto;
+    margin: 0.1rem 0;
+    padding: 0.3rem 0.15rem;
+    font-size: 0.5rem;
+    line-height: 1.15;
+  }
+
+  .aitd-notion-desc {
+    width: 92%;
   }
 
   .aitd-notion-desc p {
-    font-size: 0.62rem;
+    font-size: 0.5rem;
   }
 
   .aitd-pane-header {
@@ -1344,7 +1369,7 @@
   .aitd-text-body {
     min-height: 0;
     height: 100%;
-    font-size: 0.65rem;
+    font-size: 0.5rem;
   }
 
   /* Citation / usage code blocks: wrap long lines instead of relying on
